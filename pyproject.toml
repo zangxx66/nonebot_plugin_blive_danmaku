@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "nonebot-plugin-blive-danmaku"
+version = "0.1.0"
+description = "A danmaku plugin for Nonebot2"
+authors = ["ricardo <thespirit@vip.qq.com>"]
+documentation = "https://github.com/zangxx66/nonebot_plugin_blive_danmaku#readme"
+license = "MIT"
+homepage = "https://github.com/zangxx66/nonebot_plugin_blive_danmaku"
+readme = "README.md"
+keywords = ["nonebot", "nonebot2", "bilibili", "danmaku"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc4"}
+nonebot-adapter-onebot = "^2.2.2"
+bilireq = "^0.2.4"
+nonebot_plugin_apscheduler = "^0.2.0"
+tortoise = "^0.1.1"
+tortoise-orm = "^0.19.3"
+aiohttp = "3.7.4"
+Brotli = "1.0.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
