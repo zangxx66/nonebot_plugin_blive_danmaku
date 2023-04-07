@@ -8,9 +8,15 @@ license = "MIT"
 homepage = "https://github.com/zangxx66/nonebot_plugin_blive_danmaku"
 readme = "README.md"
 keywords = ["nonebot", "nonebot2", "bilibili", "danmaku"]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc4"}
 nonebot-adapter-onebot = "^2.2.2"
 bilireq = "^0.2.4"
