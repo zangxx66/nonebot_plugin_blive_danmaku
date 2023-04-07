@@ -92,7 +92,3 @@ def on_startup():
     if not Path(get_path()).is_dir():
             Path(get_path()).mkdir(parents=True)
 
-
-require("nonebot_plugin_apscheduler")
-from nonebot_plugin_apscheduler import scheduler 
-

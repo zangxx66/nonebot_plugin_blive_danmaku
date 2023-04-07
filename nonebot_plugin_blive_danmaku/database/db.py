@@ -4,8 +4,9 @@ from tortoise.connection import connections
 
 from ..utils import get_path
 from .model import Sub
+from nonebot.log import logger
 
-sub_list = []
+sub_dict = {"list":[]}
 
 class Db:
     @classmethod
@@ -34,6 +35,7 @@ class Db:
     async def delete_sub(cls, **kwargs) -> bool:
         if not await Sub.delete(**kwargs):
             return False
+        await cls.update_sub_list()
         return True
     
     @classmethod
@@ -55,12 +57,12 @@ class Db:
 
     @classmethod
     def get_sub_list(cls):
-        return sub_list
+        return sub_dict["list"]
 
     @classmethod
     async def update_sub_list(cls):
         subs = Sub.all()
-        sub_list = list(set([sub.uid async for sub in subs if sub.street_lamp]))
+        sub_dict["list"] = list(set([sub.uid async for sub in subs if sub.street_lamp]))
 
 
 get_driver().on_startup(Db.init)

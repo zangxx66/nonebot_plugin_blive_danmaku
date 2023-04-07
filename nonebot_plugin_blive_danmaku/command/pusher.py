@@ -1,15 +1,19 @@
 import time
 import asyncio
 from bilireq.live import get_rooms_info_by_uids
-from .utils import send_msg, scheduler
-from .blivedm import blivedm
-from .database import Db as db
+from ..utils import send_msg
+from ..blivedm import blivedm
+from ..database import Db as db
 from nonebot.log import logger
+from nonebot import require
+require("nonebot_plugin_apscheduler")
+from nonebot_plugin_apscheduler import scheduler
+
 
 class ClientModel:
-    def __init__(self, uid, name, room_id):
-        self.uid=uid
-        self.name=name
+    def __init__(self, room_id):
+        self.uid=""
+        self.name=""
         self.client=blivedm.BLiveClient(room_id)
 
 
@@ -38,9 +42,11 @@ async def danmaku():
             if new_status:
                 logger.info(f'{info["uname"]}开播了，连接直播间')
                 room_id = info["short_id"] if info["short_id"] else info["room_id"]
-                model = ClientModel(uid, info["uname"], room_id)
+                model = ClientModel(room_id)
                 model.client.add_handler(handler)
                 model.client.start()
+                model.uid=uid
+                model.name=info["uname"]
                 clients.append(model)
         else:
             if new_status == 0:
@@ -61,7 +67,8 @@ class MsgHandler(blivedm.BaseHandler):
             if not subs:
                 return
             for sub in subs:
-                index = [x for x in clients if x.uid == sub.uid]
+                index = [x for x in clients if x.uid == str(sub.uid)]
+                logger.info(index)
                 model = index[0]
                 logger.info(f'{model.name}的直播间收到路灯：{message.uname} -> {message.msg}')
                 datetime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
