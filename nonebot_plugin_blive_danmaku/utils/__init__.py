@@ -1,6 +1,7 @@
+import nonebot
+import time
 from pathlib import Path
 from typing import Union
-import nonebot
 from nonebot import require
 from nonebot.log import logger
 from nonebot.matcher import Matcher
@@ -91,4 +92,20 @@ async def get_type_id(event):
 def on_startup():
     if not Path(get_path()).is_dir():
             Path(get_path()).mkdir(parents=True)
+
+def get_timespan(time_str):
+    """字符串转时间戳"""
+    time_array = time.strptime(time_str,"%Y-%m-%d %H:%M:%S")
+    res = int(time.mktime(time_array))
+    return res
+
+
+def get_time_difference(live_time: int):
+    """计算开播时间到当前时间的时间差"""
+    now = int(time.time())
+    sub = now - live_time
+    m, s = divmod(sub, 60)
+    h, m = divmod(m, 60)
+    dt = ("%02d:%02d:%02d" % (h, m, s))
+    return dt
 
