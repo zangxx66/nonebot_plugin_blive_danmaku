@@ -11,7 +11,7 @@
 ## 安装
 - 使用`nb-cli`安装插件  
 ```
-nb plugin install nonebot_plugin_blive_danmaku
+nb plugin install nonebot-plugin-blive-danmaku
 ```
 
 ## 指令
