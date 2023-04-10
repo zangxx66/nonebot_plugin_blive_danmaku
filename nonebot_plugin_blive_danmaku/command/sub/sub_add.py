@@ -1,8 +1,8 @@
-from ..database import Db as db
+from ...database import Db as db
 from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.params import ArgPlainText
 from nonebot import on_command
-from ..utils import get_type_id,handle_uid,permission_check,uid_check
+from ...utils import get_type_id,handle_uid,permission_check,uid_check
 from bilireq.user import get_user_info
 from bilireq.exceptions import ResponseCodeError
 
@@ -25,7 +25,7 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
             await sub_add.finish(f"操作过于频繁，请半小时后再试")
         else:
             await sub_add.finish("发送未知错误")
-    res = await db.add_sub(uid=uid, type=event.message_type, type_id=type_id, street_lamp=True, bot_id=event.self_id)
+    res = await db.add_sub(uid=uid, type=event.message_type, type_id=type_id, street_lamp=True, live=False, bot_id=event.self_id)
     name = user["name"]
     if res:
         await sub_add.finish(f"添加订阅 {name}({uid}) 成功")

@@ -1,10 +1,10 @@
 from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.params import ArgPlainText
 from nonebot import on_command
-from ..utils import get_type_id,handle_uid,permission_check,uid_check
+from ...utils import get_type_id,handle_uid,permission_check,uid_check
 from bilireq.user import get_user_info
 from bilireq.exceptions import ResponseCodeError
-from ..database import Db as db
+from ...database import Db as db
 
 sub_delete = on_command("取消订阅", priority=5)
 sub_delete.__doc__ = """取消订阅 UID"""

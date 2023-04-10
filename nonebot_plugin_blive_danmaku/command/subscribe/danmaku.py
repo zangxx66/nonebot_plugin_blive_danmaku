@@ -1,13 +1,10 @@
 import time
 import asyncio
 from bilireq.live import get_rooms_info_by_uids, get_room_info_by_id
-from ..utils import send_msg, get_timespan, get_time_difference
-from ..blivedm import blivedm
-from ..database import Db as db
+from ...utils import send_msg, get_timespan, get_time_difference, scheduler
+from ...blivedm import blivedm
+from ...database import Db as db
 from nonebot.log import logger
-from nonebot import require, get_driver
-require("nonebot_plugin_apscheduler")
-from nonebot_plugin_apscheduler import scheduler
 
 
 class ClientModel:
@@ -26,7 +23,7 @@ clients = []
 )
 async def danmaku():
     """ 连接直播间 """
-    uids = db.get_sub_list()
+    uids = db.get_sub_list("street_lamp")
 
     if not uids:
         return
@@ -34,7 +31,7 @@ async def danmaku():
     res = await get_rooms_info_by_uids(uids, reqtype="web", proxies=None)
     if not res:
         return
-    logger.info(f'爬取路灯列表')
+    logger.debug(f'爬取路灯列表')
     handler = MsgHandler()
     for uid, info in res.items():
         new_status = 0 if info["live_status"] == 2 else info["live_status"]
@@ -61,20 +58,37 @@ async def danmaku():
                     await asyncio.gather(client.stop_and_close())
                     clients.remove(model)
                     logger.info(f'{info["uname"]}下播了，断开直播间连接')
+
     
 
 class MsgHandler(blivedm.BaseHandler):
     async def _on_danmaku(self, client: blivedm.BLiveClient, message: blivedm.DanmakuMessage):
         if(message.msg.startswith("#路灯")):
+            logger.info(f'{client.room_owner_uid}的直播间收到路灯：{message.uname} -> {message.msg}')
             subs = await db.get_subs(uid=client.room_owner_uid)
             if not subs:
                 return
             for sub in subs:
                 index = [x for x in clients if x.uid == str(sub.uid)]
+                if not index:
+                    continue
                 model = index[0]
-                logger.info(f'{model.name}的直播间收到路灯：{message.uname} -> {message.msg}')
+                if sub.street_lamp is False:
+                    await disconnect_room(model)
+                    continue
                 dt = get_time_difference(model.live_time)
                 datetime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-                msg = f'【{model.name}】 在 {datetime}({dt}) 收到了 {message.uname} 发来的路灯【{message.msg.replace("#路灯","", 1).strip()}】'
+                blive_danmaku = message.msg.replace("#路灯","", 1).strip()
+                msg = f'【{model.name}】 在 {datetime}({dt}) 收到了 {message.uname} 发来的路灯【{blive_danmaku}】'
                 await send_msg(bot_id=sub.bot_id,send_type=sub.type,type_id=sub.type_id,message=msg)
+                await db.add_danmaku(room_id=client.room_id, uname=message.uname, message=blive_danmaku, create_time=datetime, live_duration=dt)
 
+
+async def disconnect_room(model):
+    client = model.client
+    try:
+        asyncio.gather(client.join())
+    finally:
+        await asyncio.gather(client.stop_and_close())
+        clients.remove(model)
+        logger.info(f'{model.name} 断开直播间连接')

@@ -1,5 +1,6 @@
 from tortoise.models import Model
 from tortoise import fields
+from tortoise.fields.relational import ForeignKeyField
 
 class BaseModel(Model):
     @classmethod
@@ -48,3 +49,23 @@ class Sub(BaseModel):
     uid=fields.BigIntField()
     street_lamp=fields.BooleanField()
     bot_id=fields.BigIntField()
+
+
+class LiveRoom(BaseModel):
+    room_id=fields.BigIntField()
+    cover=fields.CharField(max_length=500)
+    title=fields.CharField(max_length=50)
+    uid=fields.BigIntField()
+    name=fields.CharField(max_length=50)
+    start_time=fields.BigIntField()
+    end_time=fields.BigIntField()
+
+
+class Danmaku(BaseModel):
+    room_id=fields.BigIntField()
+    uname=fields.CharField(max_length=50)
+    message=fields.CharField(max_length=50)
+    create_time=fields.CharField(max_length=50)
+    """创建时间"""
+    live_duration=fields.CharField(max_length=50)
+    """开播时长"""

@@ -109,3 +109,6 @@ def get_time_difference(live_time: int):
     dt = ("%02d:%02d:%02d" % (h, m, s))
     return dt
 
+from nonebot import require
+require("nonebot_plugin_apscheduler")
+from nonebot_plugin_apscheduler import scheduler

@@ -1,8 +1,8 @@
 from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.params import ArgPlainText
 from nonebot import on_command
-from ..utils import get_type_id,handle_uid,permission_check,uid_check
-from ..database import Db as db
+from ...utils import get_type_id,handle_uid,permission_check,uid_check
+from ...database import Db as db
 
 sub_off = on_command("关闭路灯", priority=5)
 sub_off.__doc__ = """关闭路灯 UID"""
