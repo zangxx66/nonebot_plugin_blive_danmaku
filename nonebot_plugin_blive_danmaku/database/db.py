@@ -14,13 +14,13 @@ class Db:
             "connections":{"danmaku_bot":f"sqlite://{get_path('danmakuBot.sqlite3')}"},
             "apps":{
                 "danmaku_bot_app":{
-                    "models":["nonebot_plugin_blive_danmaku.database.model", "aerich.models"],
+                    "models":["nonebot_plugin_blive_danmaku.database.model"],
                     "default_connection":"danmaku_bot"
                 }
             }
         }
         await Tortoise.init(config=config)
-        await Tortoise.generate_schemas()
+        await Tortoise.generate_schemas(safe=False)
         await cls.update_sub_list()
     
     @classmethod

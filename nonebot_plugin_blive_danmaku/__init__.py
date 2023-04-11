@@ -3,4 +3,4 @@ from nonebot import get_driver
 
 get_driver().on_startup(on_startup)
 
-from . import command
+from . import command, app

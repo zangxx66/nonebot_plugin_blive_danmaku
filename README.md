@@ -40,6 +40,11 @@ nb plugin install nonebot-plugin-blive-danmaku
 ```
 python -m pip install nonebot-plugin-blive-danmaku
 ```  
+## 配置  
+
+|名称|类型|默认值|描述|
+|-----|-----|-----|-----|
+|danmaku_group_notice|bool|False|全局群开播提醒|
 
 ## 指令
 
