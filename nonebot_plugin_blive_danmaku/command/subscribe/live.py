@@ -33,12 +33,12 @@ async def live():
     for uid, info in res.items():
         live_status = 0 if info["live_status"] == 2 else info["live_status"]
         if uid not in live_uids:
-            live_uids[uid] = uid
+            live_uids[uid] = live_status
             continue
         status = live_uids[uid]
         if live_status == status:
             continue
-        live_uids[uid] = uid
+        live_uids[uid] = live_status
 
         name = info["uname"]
         room_id = info["short_id"] if info["short_id"] else info["room_id"]

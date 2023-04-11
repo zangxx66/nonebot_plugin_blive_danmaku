@@ -24,6 +24,7 @@ tortoise = "^0.1.1"
 tortoise-orm = "^0.19.3"
 aiohttp = "3.7.4"
 Brotli = "1.0.9"
+aerich = "0.7.1"
 
 
 [build-system]

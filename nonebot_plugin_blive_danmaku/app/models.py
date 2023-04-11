@@ -4,4 +4,4 @@ from typing import Dict, Any
 class ResponseItem(BaseModel):
     code: int
     msg: str
-    data: Dict[str, Any] = {}
+    data: Dict[str, Any] | None

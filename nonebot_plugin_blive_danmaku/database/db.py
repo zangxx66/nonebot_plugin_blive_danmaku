@@ -4,6 +4,8 @@ from tortoise.connection import connections
 
 from ..utils import get_path
 from .model import Sub, LiveRoom, Danmaku
+from aerich import Command
+from nonebot.log import logger
 
 sub_dict = {"street_lamp": []}
 
@@ -14,14 +16,23 @@ class Db:
             "connections":{"danmaku_bot":f"sqlite://{get_path('danmakuBot.sqlite3')}"},
             "apps":{
                 "danmaku_bot_app":{
-                    "models":["nonebot_plugin_blive_danmaku.database.model"],
+                    "models":["aerich.models","nonebot_plugin_blive_danmaku.database.model"],
                     "default_connection":"danmaku_bot"
                 }
             }
         }
+        try:
+
+            command = Command(tortoise_config=config, app="danmaku_bot_app")
+            await command.init()
+            await command.migrate("danmakuBot")
+        except:
+            logger.error("migrate failed")
         await Tortoise.init(config=config)
-        await Tortoise.generate_schemas(safe=False)
+        await Tortoise.generate_schemas()
         await cls.update_sub_list()
+        logger.info("load db")
+        
     
     @classmethod
     async def add_sub(cls, **kwargs) -> bool:
