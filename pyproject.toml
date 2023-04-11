@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-blive-danmaku"
-version = "0.1.6"
+version = "0.1.61"
 description = "A danmaku plugin for Nonebot2"
 authors = ["ricardo <thespirit@vip.qq.com>"]
 documentation = "https://github.com/zangxx66/nonebot_plugin_blive_danmaku#readme"

@@ -43,7 +43,6 @@ async def live():
         name = info["uname"]
         room_id = info["short_id"] if info["short_id"] else info["room_id"]
         room_info = await get_room_info_by_id(room_id, reqtype="web")
-        start_timespan = get_timespan(room_info["live_time"])
         if live_status:
             logger.info(f"{name} 开播了")
             url = f"https://live.bilibili.com/{room_id}"
@@ -53,6 +52,7 @@ async def live():
             title = info["title"]
             msg = f"{name} 正在直播：\n{title}\n{MessageSegment.image(cover)}\n{url}"
 
+            start_timespan = get_timespan(room_info["live_time"])
             room = db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
             if not room:
                 await db.add_room(room_id=room_id, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
@@ -64,7 +64,10 @@ async def live():
             msg = f"{name} 下播了\n{MessageSegment.image(cover)}"
 
             now = int(time.time())
-            await db.update_room("end_time", now, room_id=room_id, uid=uid, start_time=start_timespan)
+            room_list = await db.get_rooms(room_id=room_id, uid=uid)
+            room_list.sort(key=lambda x:x.start_time, reverse=True)
+            room = room_list[0]
+            await db.update_room("end_time", now, room_id=room_id, uid=uid, start_time=room.start_time)
         sub_list = await db.get_subs(uid=uid)
         for sub in sub_list:
             await send_msg(bot_id=sub.bot_id, send_type=sub.type, type_id=sub.type_id, message=msg)
