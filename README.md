@@ -55,6 +55,7 @@ python -m pip install nonebot-plugin-blive-danmaku
 |/开启路灯 UID|开启直播间弹幕监听|
 |/关闭路灯 UID|关闭直播间弹幕监听|
 |/订阅列表|| 
+|/查看历史记录|打开网页版查询|
 
 ## 效果预览 
 

@@ -7,4 +7,4 @@ get_driver().on_startup(on_startup)
 from . import command, app
 get_app().mount("/danmaku", app.app, name="blive-danmaku plugin")
 logger.info("Web UI served to "
-            f"<u><e>http://{get_driver().config.host}:{get_driver().config.port}/danmaku/</e></u>")
+            f"http://{get_driver().config.host}:{get_driver().config.port}/danmaku/")

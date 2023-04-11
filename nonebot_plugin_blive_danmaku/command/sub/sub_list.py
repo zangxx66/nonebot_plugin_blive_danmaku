@@ -22,6 +22,5 @@ async def _(event: MessageEvent, bot: Bot):
         msg += (
             f"{name}({sub.uid})"
             f"路灯：{'开' if sub.street_lamp else '关'}"
-            f"开播提醒：{'开' if sub.live else '关'}"
         )
     await sub_list.finish(msg)
