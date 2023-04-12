@@ -1,9 +1,11 @@
 from nonebot import get_driver
+from nonebot.log import logger
 from tortoise import Tortoise
 from tortoise.connection import connections
 
 from ..utils import get_path
 from .model import Sub, LiveRoom, Danmaku
+from aerich import Command
 
 sub_dict = {"street_lamp": [], "live": []}
 
@@ -19,6 +21,12 @@ class Db:
                 }
             }
         }
+        try:
+            command = Command(tortoise_config=config)
+            await command.init()
+            await command.migrate("danmakuBot")
+        except:
+            logger.debug("migrate error")
         await Tortoise.init(config=config)
         await Tortoise.generate_schemas()
         await cls.update_sub_list()

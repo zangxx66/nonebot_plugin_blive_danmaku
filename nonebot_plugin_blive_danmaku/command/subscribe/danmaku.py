@@ -55,7 +55,7 @@ async def danmaku():
                 )
                 room = db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
                 if not room:
-                    await db.add_room(room_id=room_id, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
+                    await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
             if new_status == 0:
                 model = index[0]
