@@ -22,8 +22,8 @@ async def _(event: MessageEvent, bot: Bot):
         user = await get_user_info(sub.uid, reqtype="web", proxies=None)
         name = user["name"]
         msg += (
-            f"{name}({sub.uid})"
-            f"路灯：{'开' if sub.street_lamp else '关'}"
+            f"{name}({sub.uid}) "
+            f"路灯：{'开' if sub.street_lamp else '关'} "
             f"开播提醒：{'开' if plugin_config.danmaku_group_notice else '关'}"
         )
     await sub_list.finish(msg)
