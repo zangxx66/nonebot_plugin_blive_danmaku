@@ -22,12 +22,11 @@ class Db:
             }
         }
         try:
-
-            command = Command(tortoise_config=config, app="danmaku_bot_app")
+            command = Command(tortoise_config=config)
             await command.init()
             await command.migrate("danmakuBot")
         except:
-            logger.error("migrate failed")
+            logger.debug("migrate error")
         await Tortoise.init(config=config)
         await Tortoise.generate_schemas()
         await cls.update_sub_list()
