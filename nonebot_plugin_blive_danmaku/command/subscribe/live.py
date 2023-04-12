@@ -19,10 +19,7 @@ async def live():
     plugin_config = Config.parse_obj(get_driver().config)
     if plugin_config.danmaku_group_notice is False:
         return
-    sub_list = await db.get_subs()
-    uids = []
-    for x in sub_list:
-        uids.append(x.uid)
+    uids = db.get_sub_list("live")
 
     if not uids:
         return
@@ -51,23 +48,12 @@ async def live():
             )
             title = info["title"]
             msg = f"{name} 正在直播：\n{title}\n{MessageSegment.image(cover)}\n{url}"
-
-            start_timespan = get_timespan(room_info["live_time"])
-            room = db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
-            if not room:
-                await db.add_room(room_id=room_id, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
             logger.info(f"{name} 下播了")
             cover = (
                 info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
             )
             msg = f"{name} 下播了\n{MessageSegment.image(cover)}"
-
-            now = int(time.time())
-            room_list = await db.get_rooms(room_id=room_id, uid=uid)
-            room_list.sort(key=lambda x:x.start_time, reverse=True)
-            room = room_list[0]
-            await db.update_room("end_time", now, room_id=room_id, uid=uid, start_time=room.start_time)
         sub_list = await db.get_subs(uid=uid)
         for sub in sub_list:
             await send_msg(bot_id=sub.bot_id, send_type=sub.type, type_id=sub.type_id, message=msg)

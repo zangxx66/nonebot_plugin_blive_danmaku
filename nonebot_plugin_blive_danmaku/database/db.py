@@ -5,7 +5,7 @@ from tortoise.connection import connections
 from ..utils import get_path
 from .model import Sub, LiveRoom, Danmaku
 
-sub_dict = {"street_lamp": []}
+sub_dict = {"street_lamp": [], "live": []}
 
 class Db:
     @classmethod
@@ -62,6 +62,7 @@ class Db:
     async def update_sub_list(cls):
         subs = Sub.all()
         sub_dict["street_lamp"] = list(set([sub.uid async for sub in subs if sub.street_lamp]))
+        sub_dict["live"] = list(set([sub.uid async for sub in subs]))
     
     @classmethod
     async def get_rooms(cls, **kwargs):
