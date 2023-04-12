@@ -7,7 +7,7 @@ from .model import Sub, LiveRoom, Danmaku
 from aerich import Command
 from nonebot.log import logger
 
-sub_dict = {"street_lamp": []}
+sub_dict = {"street_lamp": [], "live": []}
 
 class Db:
     @classmethod
@@ -73,6 +73,7 @@ class Db:
     async def update_sub_list(cls):
         subs = Sub.all()
         sub_dict["street_lamp"] = list(set([sub.uid async for sub in subs if sub.street_lamp]))
+        sub_dict["live"] = list(set([x.uid async for x in subs]))
     
     @classmethod
     async def get_rooms(cls, **kwargs):
