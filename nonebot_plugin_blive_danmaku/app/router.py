@@ -14,6 +14,7 @@ async def get_type_sub_list(type:str = Query(..., max_length=50), type_id: int =
             continue
         room_list.append(room)
     total = len(room_list)
+    room_list.sort(key=lambda x:x.start_time, reverse=True)
     start = (page - 1) * size
     end = page * size
     result = room_list[start:end]
