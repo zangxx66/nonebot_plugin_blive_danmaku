@@ -12,5 +12,5 @@ async def _(event: MessageEvent, bot: Bot):
     driver = get_driver()
     type = event.message_type
     type_id = get_type_id(event)
-    msg = f"http://{driver.config.host}:{driver.config.port}/danmaku?type={type}&type_id={type_id}"
+    msg = f"http://{driver.config.host}:{driver.config.port}/danmaku/#/?type={type}&type_id={type_id}"
     await url_open.finish(msg)

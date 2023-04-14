@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-blive-danmaku"
-version = "0.1.4"
+version = "0.2.0"
 description = "A danmaku plugin for Nonebot2"
 authors = ["ricardo <thespirit@vip.qq.com>"]
 documentation = "https://github.com/zangxx66/nonebot_plugin_blive_danmaku#readme"
@@ -25,7 +25,8 @@ tortoise-orm = "^0.19.3"
 aiohttp = "3.7.4"
 Brotli = "1.0.9"
 aerich = "0.7.1"
-
+Pillow = "9.5.0"
+Jinjia2 = "3.1.2"
 
 [build-system]
 requires = ["poetry-core"]
