@@ -17,7 +17,6 @@ async def _(event: MessageEvent, bot: Bot):
     type_id = await get_type_id(event)
     subs = await db.get_subs(type=event.message_type, type_id=type_id)
     msg = "订阅列表：\n\n"
-    plugin_config = Config.parse_obj(get_driver().config)
     for sub in subs:
         user = await get_user_info(sub.uid, reqtype="web", proxies=None)
         name = user["name"]
