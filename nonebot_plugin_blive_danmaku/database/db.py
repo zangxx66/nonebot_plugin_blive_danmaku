@@ -1,4 +1,5 @@
 from nonebot import get_driver
+from nonebot.log import logger
 from tortoise import Tortoise
 from tortoise.connection import connections
 
@@ -16,6 +17,7 @@ class Db:
             "connections":{"danmaku_bot":f"sqlite://{get_path('danmakuBot.sqlite3')}"},
             "apps":{
                 "danmaku_bot_app":{
+
                     "models":["aerich.models","nonebot_plugin_blive_danmaku.database.model"],
                     "default_connection":"danmaku_bot"
                 }

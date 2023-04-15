@@ -49,11 +49,13 @@ async def danmaku():
                 model.live_time=get_timespan(room_info["live_time"])
                 clients.append(model)
 
+
                 cover = (
                     info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
                 )
                 start_timespan = get_timespan(room_info["live_time"])
                 room = await db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
+
                 if not room:
                     await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
@@ -67,6 +69,7 @@ async def danmaku():
                     await asyncio.gather(client.stop_and_close())
                     clients.remove(model)
                     logger.info(f'{info["uname"]}下播了，断开直播间连接')
+
                 now = int(time.time())
                 room_list = await db.get_rooms(room_id=room_id, uid=uid)
                 room_list.sort(key=lambda x:x.start_time, reverse=True)
