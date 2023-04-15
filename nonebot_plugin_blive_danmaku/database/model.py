@@ -52,6 +52,7 @@ class Sub(BaseModel):
 
 
 class LiveRoom(BaseModel):
+    id=fields.IntField(pk=True, generated=True)
     room_id=fields.BigIntField()
     cover=fields.CharField(max_length=500)
     title=fields.CharField(max_length=50)

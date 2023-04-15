@@ -1,10 +1,10 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field
+from typing import Optional
+from nonebot import get_driver
 
 class Config(BaseModel):
-    danmaku_group_notice: bool = False
+    danmaku_group_notice: Optional[bool] = Field(False, alias="danmaku_group_notice")
 
-    @validator("danmaku_group_notice")
-    def check_config(cls, v):
-        if isinstance(v, bool):
-            return v
-        return False
+driver = get_driver()
+driver_config = driver.config
+danmaku_config = Config.parse_obj(driver_config.dict())

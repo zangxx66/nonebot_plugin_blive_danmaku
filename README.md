@@ -44,7 +44,7 @@ python -m pip install nonebot-plugin-blive-danmaku
 
 |名称|类型|默认值|描述|
 |-----|-----|-----|-----|
-|danmaku_group_notice|bool|False|全局群开播提醒|
+|danmaku_group_notice|bool|False|全局群开播提醒|  
 
 ## 指令
 
@@ -55,13 +55,17 @@ python -m pip install nonebot-plugin-blive-danmaku
 |/开启路灯 UID|开启直播间弹幕监听|
 |/关闭路灯 UID|关闭直播间弹幕监听|
 |/订阅列表|| 
-|/查看历史记录|打开网页版查询|
+|/查看面板|打开网页版查询|
 
 ## 效果预览 
 
 ![](/doc/screenshot.png)
 
-## 更新日志  
+## 更新日志 
+
+- v0.2.0
+    - 修复历史bug  
+    - 添加网页面板，外部访问请自行配置反向代理服务器
 - v0.1.4
     - 添加开播提醒，`.env`新增全局配置项`danmaku_group_notice`开关 [#3](https://github.com/zangxx66/nonebot_plugin_blive_danmaku/issues/3)  
     - 调整日志级别 [#5](https://github.com/zangxx66/nonebot_plugin_blive_danmaku/issues/5)

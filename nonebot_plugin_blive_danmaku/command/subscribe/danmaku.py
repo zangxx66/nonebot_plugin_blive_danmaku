@@ -95,7 +95,11 @@ class MsgHandler(blivedm.BaseHandler):
                 blive_danmaku = message.msg.replace("#路灯","", 1).strip()
                 msg = f'【{model.name}】 在 {datetime}({dt}) 收到了 {message.uname} 发来的路灯【{blive_danmaku}】'
                 await send_msg(bot_id=sub.bot_id,send_type=sub.type,type_id=sub.type_id,message=msg)
-                await db.add_danmaku(room_id=client.room_id, uname=message.uname, message=blive_danmaku, create_time=datetime, live_duration=dt)
+
+                room_list = await db.get_rooms(room_id=client.room_id, uid=sub.uid)
+                room_list.sort(key=lambda x:x.start_time, reverse=True)
+                room = room_list[0]
+                await db.add_danmaku(room_id=room.id, uname=message.uname, message=blive_danmaku, create_time=datetime, live_duration=dt)
 
 
 async def disconnect_room(model):

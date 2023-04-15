@@ -33,11 +33,12 @@ async def get_type_sub_list(type:str = Query(..., max_length=50), type_id: int =
     return models.ResponseItem(code=0, msg="", data={"rows": result, "total": total})
 
 @router.get("/get_room", response_model=models.ResponseItem)
-async def get_room_info(room_id: int = Query(...)):
-    room_info = await db.get_room(room_id=room_id)
+async def get_room_info(id: int = Query(...)):
+    room_info = await db.get_room(id=id)
     if not room_info:
         return models.ResponseItem(code=-1, msg="房间号码有误", data=None)
-    danmaku_list = await db.get_danmaku_by_rid(room_id=room_id)
+    danmaku_list = await db.get_danmaku_by_rid(room_id=room_info.id)
+    danmaku_list.sort(key=lambda x:x.create_time, reverse=False)
     return models.ResponseItem(code=0, msg="", data={"room_info": room_info, "danmaku": danmaku_list})
 
 @router.get("/get_cover", response_model=models.ResponseItem)
