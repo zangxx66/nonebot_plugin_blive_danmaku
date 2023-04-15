@@ -1,4 +1,5 @@
 from nonebot import get_driver
+from nonebot.log import logger
 from tortoise import Tortoise
 from tortoise.connection import connections
 
