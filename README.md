@@ -64,13 +64,11 @@ python -m pip install nonebot-plugin-blive-danmaku
 
 ## 反向代理（可选，如果需要配置外部网络访问面板）  
 
-::: tip  
-这里仅以最简单的配置为例，不包含SSL访问
-:::
+> 这里仅以最简单的配置为例，不包含SSL访问  
 
 Nginx  
 
-```
+```  nginx
 server {
         listen       80;
         server_name  www.your_domain.com;
@@ -94,7 +92,7 @@ server {
 
 Apache  
 
-```
+``` apache
 <VirtualHost *:80>
     ServerName  www.your_domain.com
     ProxyRequests Off
