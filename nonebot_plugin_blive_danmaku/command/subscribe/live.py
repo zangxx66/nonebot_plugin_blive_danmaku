@@ -5,7 +5,7 @@ from nonebot import get_driver
 from nonebot.log import logger
 from nonebot.adapters.onebot.v11 import MessageSegment
 from ...database import Db as db
-from ...config import Config
+from ...config import danmaku_config
 
 
 live_uids = {}
@@ -16,8 +16,7 @@ live_uids = {}
 )
 async def live():
     """开播提醒"""
-    plugin_config = Config.parse_obj(get_driver().config)
-    if plugin_config.danmaku_group_notice is False:
+    if danmaku_config.danmaku_group_notice is False:
         return
     uids = db.get_sub_list("live")
 

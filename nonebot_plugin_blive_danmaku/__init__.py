@@ -1,7 +1,6 @@
 from .utils import on_startup
 from nonebot import get_driver, get_app
 from nonebot.log import logger
-from .config import danmaku_config
 
 driver = get_driver()
 driver.on_startup(on_startup)

@@ -5,6 +5,8 @@ from ...utils import send_msg, get_timespan, get_time_difference, scheduler
 from ...blivedm import blivedm
 from ...database import Db as db
 from nonebot.log import logger
+from ...config import danmaku_config
+from nonebot import get_driver
 
 
 class ClientModel:
@@ -71,7 +73,14 @@ async def danmaku():
                 room_list = await db.get_rooms(room_id=room_id, uid=uid)
                 room_list.sort(key=lambda x:x.start_time, reverse=True)
                 room = room_list[0]
-                await db.update_room("end_time", now, room_id=room_id, uid=uid, start_time=room.start_time)
+                await db.update_room("end_time", now, id=room.id)
+
+                driver = get_driver()
+                host = danmaku_config.danmaku_host if danmaku_config.danmaku_host else f"http://{driver.config.host}:{driver.config.port}"
+                subs = await db.get_subs(uid=uid,street_lamp=True)
+                for sub in subs:
+                    msg = f'{info["uname"]}下播了，可前往面板查看本次直播的路灯记录：{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}'
+                    await send_msg(bot_id=sub.bot_id,send_type=sub.type,type_id=sub.type_id,message=msg)
 
     
 
@@ -100,6 +109,18 @@ class MsgHandler(blivedm.BaseHandler):
                 room_list.sort(key=lambda x:x.start_time, reverse=True)
                 room = room_list[0]
                 await db.add_danmaku(room_id=room.id, uname=message.uname, message=blive_danmaku, create_time=datetime, live_duration=dt)
+    
+    async def _on_buy_guard(self, client: blivedm.BLiveClient, message: blivedm.GuardBuyMessage):
+        logger.debug(f"[{client.room_id}] {message.username} 购买{message.gift_name}")
+    
+    async def _on_super_chat(self, client: blivedm.BLiveClient, message: blivedm.SuperChatMessage):
+        logger.debug(f"[{client.room_id}] SC ¥{message.price} {message.uname}：{message.message}")
+    
+    async def _on_gift(self, client: blivedm.BLiveClient, message: blivedm.GiftMessage):
+        logger.debug(f"[{client.room_id}] {message.uname} 赠送{message.gift_name}x{message.num}")
+    
+    async def _on_heartbeat(self, client: blivedm.BLiveClient, message: blivedm.HeartbeatMessage):
+        logger.debug(f"[{client.room_id}] 当前人气值：{message.popularity}")
 
 
 async def disconnect_room(model):
