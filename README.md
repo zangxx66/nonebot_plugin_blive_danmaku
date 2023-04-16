@@ -60,10 +60,53 @@ python -m pip install nonebot-plugin-blive-danmaku
 
 ## 效果预览 
 
-![](/doc/screenshot.png)
+![](/doc/screenshot.png)  
+
+## 反向代理（可选，如果需要配置外部网络访问面板）  
+
+::: tip  
+这里仅以最简单的配置为例，不包含SSL访问
+:::
+
+Nginx  
+
+```
+server {
+        listen       80;
+        server_name  www.your_domain.com;
+
+        location / {
+            proxy_pass http://127.0.0.1:8080/;
+            proxy_http_version 1.1;
+			proxy_set_header Upgrade $http_upgrade;
+			proxy_set_header Connection keep-alive;
+			proxy_set_header Host $host;
+			proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_cache_bypass $http_upgrade;
+        }
+
+        location /ws {
+            deny all;
+        }
+    }
+```  
+
+Apache  
+
+```
+<VirtualHost *:80>
+    ServerName  www.your_domain.com
+    ProxyRequests Off
+    ProxyPass / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+</VirtualHost>
+```
 
 ## 更新日志 
-
+- v0.2.4
+    - 移除直播间ws监听多余的输出
+    - 更新前端
 - v0.2.0
     - 修复历史bug  
     - 添加网页面板，外部访问请自行配置反向代理服务器
