@@ -1,6 +1,7 @@
 from tortoise.models import Model
 from tortoise import fields
 from tortoise.fields.relational import ForeignKeyField
+from nonebot.log import logger
 
 class BaseModel(Model):
     @classmethod
@@ -37,6 +38,7 @@ class BaseModel(Model):
         if await query.exists():
             await query.update(**kwargs)
             return True
+        logger.error(f'更新数据失败：{q} -> {kwargs}')
         return False
 
     class Meta:

@@ -7,6 +7,11 @@ from ...database import Db as db
 from nonebot.log import logger
 from ...config import danmaku_config
 from nonebot import get_driver
+import httpx
+from io import BytesIO
+import os
+from PIL import Image
+from pathlib import Path
 
 
 class ClientModel:
@@ -18,7 +23,12 @@ class ClientModel:
 
 
 clients = []
-
+driver = get_driver()
+host = danmaku_config.danmaku_host if danmaku_config.danmaku_host else f"http://{driver.config.host}:{driver.config.port}"
+full_path = Path(__file__).parent.parent.parent / "app" / "frontend" / "static"
+headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+}
 
 @scheduler.scheduled_job(
     "interval", seconds=15, id="street_lamp_sched"
@@ -30,7 +40,11 @@ async def danmaku():
     if not uids:
         return
     
-    res = await get_rooms_info_by_uids(uids, reqtype="web", proxies=None)
+    try:
+        res = await get_rooms_info_by_uids(uids, reqtype="web", proxies=None)
+    except Exception as ex:
+        logger.error(f"get_rooms_info_by_uids错误:\n{ex}")
+        return
     if not res:
         return
     logger.debug(f'爬取路灯列表')
@@ -57,7 +71,20 @@ async def danmaku():
                 start_timespan = get_timespan(room_info["live_time"])
                 room = await db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
                 if not room:
-                    await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
+                    filename = os.path.basename(cover)
+                    save_path = os.path.join(full_path, filename)
+                    save_cover = ""
+                    if not os.path.isfile(save_path):
+                        try:
+                            async with httpx.AsyncClient() as httpClient:
+                                rep = await httpClient.get(cover, headers=headers)
+                                assert rep.status_code == 200
+                                img = Image.open(BytesIO(rep.content))
+                                img.save(save_path)
+                                save_cover = f'{host}/danmaku/static/{filename}'
+                        except Exception as ex:
+                            logger.error(f"保存封面异常：\n{ex}")
+                    await db.add_room(room_id=room_id, uid=uid, cover=save_cover if save_cover else cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
             if new_status == 0:
                 model = index[0]
@@ -75,8 +102,6 @@ async def danmaku():
                 room = room_list[0]
                 await db.update_room("end_time", now, id=room.id)
 
-                driver = get_driver()
-                host = danmaku_config.danmaku_host if danmaku_config.danmaku_host else f"http://{driver.config.host}:{driver.config.port}"
                 subs = await db.get_subs(uid=uid,street_lamp=True)
                 for sub in subs:
                     msg = f'{info["uname"]}下播了，可前往面板查看本次直播的路灯记录：{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}'

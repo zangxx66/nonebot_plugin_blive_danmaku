@@ -81,6 +81,14 @@ class Db:
         return res
     
     @classmethod
+    async def get_rooms_by_paged(cls, limit, offset, where):
+        conn = Tortoise.get_connection("danmaku_bot")
+        _,res = await conn.execute_query(f"select * from (select room.*,s.type,s.type_id from LiveRoom room left join Sub s on s.uid=room.uid)t where {where} order by start_time desc limit ? offset ?",[limit,offset])
+        _,dict = await conn.execute_query(f"select count(1) total from (select room.*,s.type,s.type_id from LiveRoom room left join Sub s on s.uid=room.uid)t where {where}")
+        total = dict[0]["total"]
+        return total,res
+
+    @classmethod
     async def get_room(cls, **kwargs):
         res = await LiveRoom.get(**kwargs).first()
         return res

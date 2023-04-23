@@ -73,8 +73,8 @@ server {
         listen       80;
         server_name  www.your_domain.com;
 
-        location / {
-            proxy_pass http://127.0.0.1:8080/;
+        location /danmaku/ {
+            proxy_pass http://127.0.0.1:8080/danmaku/;
             proxy_http_version 1.1;
 			proxy_set_header Upgrade $http_upgrade;
 			proxy_set_header Connection keep-alive;
@@ -96,12 +96,14 @@ Apache
 <VirtualHost *:80>
     ServerName  www.your_domain.com
     ProxyRequests Off
-    ProxyPass / http://127.0.0.1:8080/
-    ProxyPassReverse / http://127.0.0.1:8080/
+    ProxyPass "/danmaku/" http://127.0.0.1:8080/danmaku/
+    ProxyPassReverse "/danmaku/" http://127.0.0.1:8080/danmaku/
 </VirtualHost>
 ```
 
 ## 更新日志 
+- v0.2.5
+    - 前端添加条件搜索
 - v0.2.4
     - 移除直播间ws监听多余的输出
     - 更新前端
