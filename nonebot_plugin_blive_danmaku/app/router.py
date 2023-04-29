@@ -25,6 +25,7 @@ async def get_type_sub_list(type:str = Query(..., max_length=50),
                             page:int = Query(1), 
                             size:int = Query(30), 
                             title: str= Query(None), 
+                            danmaku: str= Query(None),
                             start:int = Query(None), 
                             end:int = Query(None)):
     """
@@ -41,6 +42,8 @@ async def get_type_sub_list(type:str = Query(..., max_length=50),
         where += f"and start_time>='{start}' "
     if end is not None and end > 0:
         where += f"and (end_time>'0' and end_time<'{end}') "
+    if danmaku is not None:
+        where += f"and message like '%{danmaku}%' "
     total,dict = await db.get_rooms_by_paged(size, skip, where)
     return models.ResponseItem(code=0, msg="", data={"rows": dict, "total": total})
 

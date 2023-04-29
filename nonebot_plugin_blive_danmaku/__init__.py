@@ -1,6 +1,16 @@
 from .utils import on_startup
 from nonebot import get_driver, get_app
 from nonebot.log import logger
+from nonebot.plugin import PluginMetadata
+from .config import Config as danmaku_config
+
+__plugin_meta__ = PluginMetadata(
+    name = "B站直播间路灯插件",
+    description = "通过弹幕记录直播高能点",
+    usage = "弹幕指令为'#路灯 加上记录的内容'，仅在开播时弹幕指令才会生效",
+    config = danmaku_config,
+    extra = {}
+)
 
 driver = get_driver()
 driver.on_startup(on_startup)

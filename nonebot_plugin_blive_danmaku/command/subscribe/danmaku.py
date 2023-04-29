@@ -84,6 +84,8 @@ async def danmaku():
                                 save_cover = f'{host}/danmaku/static/{filename}'
                         except Exception as ex:
                             logger.error(f"保存封面异常：\n{ex}")
+                    else:
+                        save_cover = f'{host}/danmaku/static/{filename}'
                     await db.add_room(room_id=room_id, uid=uid, cover=save_cover if save_cover else cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
             if new_status == 0:

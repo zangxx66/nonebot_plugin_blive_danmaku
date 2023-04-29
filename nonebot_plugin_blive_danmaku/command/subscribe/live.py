@@ -1,7 +1,5 @@
-import time
-from bilireq.live import get_rooms_info_by_uids, get_room_info_by_id
-from ...utils import send_msg, scheduler, get_timespan
-from nonebot import get_driver
+from bilireq.live import get_rooms_info_by_uids
+from ...utils import send_msg, scheduler
 from nonebot.log import logger
 from nonebot.adapters.onebot.v11 import MessageSegment
 from ...database import Db as db
@@ -22,8 +20,11 @@ async def live():
 
     if not uids:
         return
-    
-    res = await get_rooms_info_by_uids(uids, reqtype="web", proxies=None)
+    try:
+        res = await get_rooms_info_by_uids(uids, reqtype="web", proxies=None)
+    except Exception as ex:
+        logger.error(f"开播提醒get_rooms_info_by_uids错误:\n{ex}")
+        return
     if not res:
         return
     for uid, info in res.items():
