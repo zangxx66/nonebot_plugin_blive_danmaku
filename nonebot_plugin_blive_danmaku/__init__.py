@@ -11,6 +11,7 @@ __plugin_meta__ = PluginMetadata(
     config = danmaku_config,
     extra = {}
 )
+__version__ = "0.2.7"
 
 driver = get_driver()
 driver.on_startup(on_startup)

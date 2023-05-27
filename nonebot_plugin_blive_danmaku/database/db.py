@@ -6,7 +6,8 @@ from tortoise.connection import connections
 from ..utils import get_path
 from .model import Sub, LiveRoom, Danmaku
 from aerich import Command
-from nonebot.log import logger
+from nonebot_plugin_blive_danmaku import __version__
+import time
 
 sub_dict = {"street_lamp": [], "live": []}
 
@@ -16,18 +17,20 @@ class Db:
         config={
             "connections":{"danmaku_bot":f"sqlite://{get_path('danmakuBot.sqlite3')}"},
             "apps":{
-                "danmaku_bot_app":{
+                __version__ :{
                     "models":["aerich.models","nonebot_plugin_blive_danmaku.database.model"],
                     "default_connection":"danmaku_bot"
                 }
             }
         }
         try:
-            command = Command(tortoise_config=config)
+            command = Command(tortoise_config=config, app=__version__)
             await command.init()
-            await command.migrate("danmakuBot")
-        except:
-            logger.debug("migrate error")
+            await command.init_db(True)
+            await command.migrate()
+            await command.upgrade()
+        except Exception as ex:
+            logger.debug(f"migrate error:\n{ex}")
         await Tortoise.init(config=config)
         await Tortoise.generate_schemas()
         await cls.update_sub_list()
@@ -108,7 +111,7 @@ class Db:
     
     @classmethod
     async def get_danmaku_by_rid(cls, room_id):
-        res = await Danmaku.get(room_id=room_id).order_by("-create_time")
+        res = await Danmaku.get(room_id=room_id).order_by("create_time")
         return res
     
     @classmethod

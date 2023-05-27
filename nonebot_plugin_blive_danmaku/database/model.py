@@ -1,6 +1,5 @@
 from tortoise.models import Model
 from tortoise import fields
-from tortoise.fields.relational import ForeignKeyField
 from nonebot.log import logger
 
 class BaseModel(Model):
@@ -67,7 +66,7 @@ class LiveRoom(BaseModel):
 class Danmaku(BaseModel):
     room_id=fields.BigIntField()
     uname=fields.CharField(max_length=50)
-    message=fields.CharField(max_length=50)
+    message=fields.CharField(max_length=5000)
     create_time=fields.CharField(max_length=50)
     """创建时间"""
     live_duration=fields.CharField(max_length=50)

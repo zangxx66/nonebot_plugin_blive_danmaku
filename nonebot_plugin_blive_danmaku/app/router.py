@@ -9,6 +9,8 @@ from PIL import Image
 from nonebot import get_driver
 from ..config import danmaku_config
 from pathlib import Path
+import base64
+import mimetypes
 
 router = APIRouter(tags=["api"])
 headers = {
