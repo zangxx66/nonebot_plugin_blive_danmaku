@@ -7,7 +7,6 @@ from ..utils import get_path
 from .model import Sub, LiveRoom, Danmaku
 from aerich import Command
 from nonebot_plugin_blive_danmaku import __version__
-import time
 
 sub_dict = {"street_lamp": [], "live": []}
 
@@ -93,14 +92,15 @@ class Db:
                                                             left join danmaku d on room.id = d.room_id
                                                             where {where} 
                                                             )t
-                                                            order by start_time desc 
+                                                            order by start_time desc
                                                             limit ? offset ?""",[limit,offset])
         _,dict = await conn.execute_query(f"""select count(distinct id) total from 
                                                 (select room.*,s.type,s.type_id,d.message 
                                                 from LiveRoom room 
                                                     left join Sub s on s.uid=room.uid
                                                     left join danmaku d on room.id = d.room_id
-                                                )t where {where}""")
+                                                 where {where}
+                                                )t""")
         total = dict[0]["total"]
         return total,rows
 

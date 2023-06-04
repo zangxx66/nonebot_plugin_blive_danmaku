@@ -45,7 +45,7 @@ python -m pip install nonebot-plugin-blive-danmaku
 |名称|类型|默认值|描述|
 |-----|-----|-----|-----|
 |danmaku_group_notice|bool|False|全局群开播提醒|  
-|danmaku_host|str||外部访问地址，若配置了公网访问地址请填写此项，以便bot能够发送正确的面板地址，例如：`“http://www.your_domain.com”`，`“http://192.168.0.2"`|
+|danmaku_host|str||外部访问地址，若配置了公网访问地址请填写此项，以便bot能够发送正确的面板地址（注：非80，443端口请带上端口号），例如：`“http://www.your_domain.com”`，`“http://192.168.0.2"`|
 
 ## 指令
 
@@ -102,6 +102,9 @@ Apache
 ```
 
 ## 更新日志 
+- v0.2.8
+    - 封面地址不再绑定url，面板地址变更导致封面图片异常的可手动清理 [#10](https://github.com/zangxx66/nonebot_plugin_blive_danmaku/issues/10)
+    - 面板添加侧边菜单应对多个订阅的展示
 - v0.2.7
     - 面板支持表情显示
 - v0.2.6

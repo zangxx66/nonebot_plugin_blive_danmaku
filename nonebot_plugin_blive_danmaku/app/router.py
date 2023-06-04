@@ -6,24 +6,20 @@ import httpx
 from io import BytesIO
 import os
 from PIL import Image
-from nonebot import get_driver
-from ..config import danmaku_config
 from pathlib import Path
-import base64
-import mimetypes
+from bilireq.grpc.dynamic import grpc_get_user_dynamics
 
 router = APIRouter(tags=["api"])
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
 }
 full_path = Path(__file__).parent / "frontend" / "static"
-driver = get_driver()
-host = danmaku_config.danmaku_host if danmaku_config.danmaku_host else f"http://{driver.config.host}:{driver.config.port}"
 
 
 @router.get("/get_sub_list", response_model=models.ResponseItem)
 async def get_type_sub_list(type:str = Query(..., max_length=50), 
                             type_id: int = Query(...), 
+                            uid: int = Query(None),
                             page:int = Query(1), 
                             size:int = Query(30), 
                             title: str= Query(None), 
@@ -46,6 +42,8 @@ async def get_type_sub_list(type:str = Query(..., max_length=50),
         where += f"and (end_time>'0' and end_time<'{end}') "
     if danmaku is not None:
         where += f"and message like '%{danmaku}%' "
+    if uid is not None and uid > 0:
+        where += f"and room.uid='{uid}' "
     total,dict = await db.get_rooms_by_paged(size, skip, where)
     return models.ResponseItem(code=0, msg="", data={"rows": dict, "total": total})
 
@@ -82,9 +80,48 @@ async def get_cover(url:str=Query(...), rid:int=Query(...)):
     filename = os.path.basename(url)
     save_path = os.path.join(full_path, filename)
     if os.path.isfile(save_path):
-        await db.update_room("cover", f'{host}/danmaku/static/{filename}', id=rid)
+        await db.update_room("cover", f'/static/{filename}', id=rid)
         return models.ResponseItem(code=0,msg="", data={"data": f"/static/{filename}"})
     img = Image.open(BytesIO(rep.content))
     img.save(save_path)
-    await db.update_room("cover", f'{host}/danmaku/static/{filename}', id=rid)
+    await db.update_room("cover", f'/static/{filename}', id=rid)
     return models.ResponseItem(code=0,msg="", data={"data": f"/static/{filename}"})
+
+@router.get("/get_liver_list", response_model=models.ResponseItem)
+async def get_liver_list(type:str=Query(...),type_id=Query(...)):
+    """
+    获取订阅的主播列表
+    """
+    subs = await db.get_subs(type=type,type_id=type_id)
+    result = []
+    for sub in subs:
+        dy = (await grpc_get_user_dynamics(sub.uid)).list
+        name = dy[0].modules[0].module_author.author.name
+        result.append({"name": name, "uid": sub.uid})
+    return models.ResponseItem(code=0, msg="", data={"data": result})
+
+@router.get("/clear_cache", response_model=models.ResponseItem)
+async def clear_cache(type: str=Query(...), type_id: int=Query(...), uid: int=Query(None)):
+    """
+    重置封面图片
+    """
+    subs = await db.get_subs(type=type, type_id=type_id)
+    room_list = []
+    for sub in subs:
+        l = await db.get_rooms(uid=sub.uid)
+        room_list.extend(l)
+    for room in room_list:
+        filename = os.path.basename(room.cover)
+        origin_url = "https://i0.hdslb.com/bfs/live/new_room_cover/" + filename
+        await db.update_room("cover", origin_url, id=room.id)
+
+        save_path = os.path.join(full_path, filename)
+        if os.path.isfile(save_path):
+            os.remove(save_path)
+    return models.ResponseItem(code=0)
+
+@router.get("/get_liver_name", response_model=models.ResponseItem)
+async def get_liver_name(uid: int=Query(...)):
+    dy = (await grpc_get_user_dynamics(uid)).list
+    name = dy[0].modules[0].module_author.author.name
+    return models.ResponseItem(code=0, data={"data": name})

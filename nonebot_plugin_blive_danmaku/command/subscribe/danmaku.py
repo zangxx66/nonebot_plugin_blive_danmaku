@@ -81,11 +81,11 @@ async def danmaku():
                                 assert rep.status_code == 200
                                 img = Image.open(BytesIO(rep.content))
                                 img.save(save_path)
-                                save_cover = f'{host}/danmaku/static/{filename}'
+                                save_cover = f'/static/{filename}'
                         except Exception as ex:
                             logger.error(f"保存封面异常：\n{ex}")
                     else:
-                        save_cover = f'{host}/danmaku/static/{filename}'
+                        save_cover = f'/static/{filename}'
                     await db.add_room(room_id=room_id, uid=uid, cover=save_cover if save_cover else cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
             if new_status == 0:
@@ -106,7 +106,7 @@ async def danmaku():
 
                 subs = await db.get_subs(uid=uid,street_lamp=True)
                 for sub in subs:
-                    msg = f'{info["uname"]}下播了，可前往面板查看本次直播的路灯记录：{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}'
+                    msg = f'{info["uname"]}下播了，可前往面板查看本次直播的路灯记录：{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}&uid={sub.uid}'
                     await send_msg(bot_id=sub.bot_id,send_type=sub.type,type_id=sub.type_id,message=msg)
 
     
