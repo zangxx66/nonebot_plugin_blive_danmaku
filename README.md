@@ -45,7 +45,7 @@ python -m pip install nonebot-plugin-blive-danmaku
 |名称|类型|默认值|描述|
 |-----|-----|-----|-----|
 |danmaku_group_notice|bool|False|全局群开播提醒|  
-|danmaku_host|str||外部访问地址，若配置了公网访问地址请填写此项，以便bot能够发送正确的面板地址（注：非80，443端口请带上端口号），例如：`“http://www.your_domain.com”`，`“http://192.168.0.2"`|
+|danmaku_host|str||外部访问地址，若配置了公网访问地址请填写此项，以便bot能够发送正确的面板地址，例如：`“http://www.your_domain.com”`，`“http://192.168.0.2"`<br/>非80，443端口需要带上端口号，例如：`“http://www.your_domain.com:12450”`，`“http://192.168.0.2:12450"`|
 
 ## 指令
 
