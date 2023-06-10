@@ -7,10 +7,6 @@ from ...database import Db as db
 from nonebot.log import logger
 from ...config import danmaku_config
 from nonebot import get_driver
-import httpx
-from io import BytesIO
-import os
-from PIL import Image
 from pathlib import Path
 
 
@@ -25,10 +21,6 @@ class ClientModel:
 clients = []
 driver = get_driver()
 host = danmaku_config.danmaku_host if danmaku_config.danmaku_host else f"http://{driver.config.host}:{driver.config.port}"
-full_path = Path(__file__).parent.parent.parent / "app" / "frontend" / "static"
-headers = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
-}
 
 @scheduler.scheduled_job(
     "interval", seconds=15, id="street_lamp_sched"
@@ -65,28 +57,13 @@ async def danmaku():
                 model.live_time=get_timespan(room_info["live_time"])
                 clients.append(model)
 
-                cover = (
-                    info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
-                )
-                start_timespan = get_timespan(room_info["live_time"])
                 room = await db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
                 if not room:
-                    filename = os.path.basename(cover)
-                    save_path = os.path.join(full_path, filename)
-                    save_cover = ""
-                    if not os.path.isfile(save_path):
-                        try:
-                            async with httpx.AsyncClient() as httpClient:
-                                rep = await httpClient.get(cover, headers=headers)
-                                assert rep.status_code == 200
-                                img = Image.open(BytesIO(rep.content))
-                                img.save(save_path)
-                                save_cover = f'/static/{filename}'
-                        except Exception as ex:
-                            logger.error(f"保存封面异常：\n{ex}")
-                    else:
-                        save_cover = f'/static/{filename}'
-                    await db.add_room(room_id=room_id, uid=uid, cover=save_cover if save_cover else cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
+                    cover = (
+                        info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
+                    )
+                    start_timespan = get_timespan(room_info["live_time"])
+                    await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
             if new_status == 0:
                 model = index[0]

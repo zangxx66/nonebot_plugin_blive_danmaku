@@ -15,7 +15,6 @@ sub_add.got("uid", prompt="请输入一个UID")(uid_check)
 @sub_add.handle()
 async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     """添加订阅"""
-    type_id = await get_type_id(event)
     try:
         user = await get_user_info(uid, reqtype="web", proxies=None)
     except ResponseCodeError as ex:
@@ -25,8 +24,14 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
             await sub_add.finish(f"操作过于频繁，请半小时后再试")
         else:
             await sub_add.finish("发送未知错误")
-    res = await db.add_sub(uid=uid, type=event.message_type, type_id=type_id, street_lamp=True, bot_id=event.self_id)
+    sub = await db.get_sub(uid=uid, type=event.message_type, type_id=type_id, bot_id=event.self_id)
     name = user["name"]
+    if sub is not None:
+        await sub_add.finish(f"{name}({uid}) 已经订阅")
+
+    type_id = await get_type_id(event)
+    res = await db.add_sub(uid=uid, type=event.message_type, type_id=type_id, street_lamp=True, bot_id=event.self_id)
     if res:
         await sub_add.finish(f"添加订阅 {name}({uid}) 成功")
-    await sub_add.finish(f"{name}({uid}) 已经订阅")
+    else:
+        await sub_add.finish(f'添加订阅 {name}({uid}) 失败')

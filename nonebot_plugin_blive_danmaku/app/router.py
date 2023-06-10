@@ -1,18 +1,11 @@
 from fastapi import APIRouter, Query
 from ..database import Db as db
 from . import models
-from nonebot.log import logger
-import httpx
-from io import BytesIO
 import os
-from PIL import Image
 from pathlib import Path
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
 
 router = APIRouter(tags=["api"])
-headers = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
-}
 full_path = Path(__file__).parent / "frontend" / "static"
 
 
@@ -64,28 +57,6 @@ async def get_room_danmaku(rid: int = Query(...)):
     """
     danmaku_list = await db.get_danmaku_by_rid(room_id=rid)
     return models.ResponseItem(code=0, msg="", data={"rows": danmaku_list, "total": len(danmaku_list)})
-
-@router.get("/get_cover", response_model=models.ResponseItem)
-async def get_cover(url:str=Query(...), rid:int=Query(...)):
-    """
-    啊B有防盗链，这里直接存本地当作缓存用了
-    """
-    try:
-        async with httpx.AsyncClient() as client:
-            rep = await client.get(url, headers=headers)
-            assert rep.status_code == 200
-    except Exception as ex:
-        logger.error(f"获取直播间封面异常：\n{ex}")
-        return models.ResponseItem(code=-1,msg="请求异常", data=None)
-    filename = os.path.basename(url)
-    save_path = os.path.join(full_path, filename)
-    if os.path.isfile(save_path):
-        await db.update_room("cover", f'/static/{filename}', id=rid)
-        return models.ResponseItem(code=0,msg="", data={"data": f"/static/{filename}"})
-    img = Image.open(BytesIO(rep.content))
-    img.save(save_path)
-    await db.update_room("cover", f'/static/{filename}', id=rid)
-    return models.ResponseItem(code=0,msg="", data={"data": f"/static/{filename}"})
 
 @router.get("/get_liver_list", response_model=models.ResponseItem)
 async def get_liver_list(type:str=Query(...),type_id=Query(...)):

@@ -86,7 +86,7 @@ class Db:
     async def get_rooms_by_paged(cls, limit, offset, where):
         conn = Tortoise.get_connection("danmaku_bot")
         _,rows = await conn.execute_query(f"""select * from 
-                                                        (select distinct room.*
+                                                        (select distinct room.*,(select count(1) from danmaku where room_id=room.id) count
                                                             from LiveRoom room 
                                                             left join Sub s on s.uid=room.uid
                                                             left join danmaku d on room.id = d.room_id

@@ -102,6 +102,11 @@ Apache
 ```
 
 ## 更新日志 
+- v0.2.9
+    - 面板查询开播历史列表，标题旁展示该场直播的路灯数量
+    - Bot被踢出群后清除该群的订阅
+    - fix路灯列表搜索bug
+    - Clean Up Code
 - v0.2.8
     - 封面地址不再绑定url，面板地址变更导致封面图片异常的可手动清理 [#10](https://github.com/zangxx66/nonebot_plugin_blive_danmaku/issues/10)
     - 面板添加侧边菜单应对多个订阅的展示
