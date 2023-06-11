@@ -57,12 +57,12 @@ async def danmaku():
                 model.live_time=get_timespan(room_info["live_time"])
                 clients.append(model)
 
+                start_timespan = get_timespan(room_info["live_time"])
                 room = await db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
                 if not room:
                     cover = (
                         info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
                     )
-                    start_timespan = get_timespan(room_info["live_time"])
                     await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
         else:
             if new_status == 0:
