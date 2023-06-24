@@ -18,7 +18,7 @@ classifiers = [
 python = ">=3.10,<4.0"
 nonebot2 = {extras = ["fastapi"], version = "^2.0.0"}
 nonebot-adapter-onebot = "^2.2.2"
-bilireq = "^0.2.4"
+bilireq = "^0.2.6"
 nonebot_plugin_apscheduler = "^0.2.0"
 tortoise = "^0.1.1"
 tortoise-orm = "^0.19.3"
