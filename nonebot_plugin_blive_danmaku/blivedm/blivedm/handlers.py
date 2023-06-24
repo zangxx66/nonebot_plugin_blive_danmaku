@@ -15,29 +15,30 @@ logger = logging.getLogger('blivedm')
 # 常见可忽略的cmd
 IGNORED_CMDS = (
     'AREA_RANK_CHANGED',
-    'ANCHOR_LOT_CHECKSTATUS',
-    'ANCHOR_LOT_START',
-    'ANCHOR_LOT_END',
-    'ANCHOR_LOT_AWARD',
-    'COMBO_SEND',
-    'COMMON_NOTICE_DANMAKU',
-    'DANMU_AGGREGATION',
-    'ENTRY_EFFECT',
+    'ANCHOR_LOT_CHECKSTATUS', # 天选时刻检查状态
+    'ANCHOR_LOT_START', # 天选时刻抽奖开始
+    'ANCHOR_LOT_END', # 天选时刻抽奖结束
+    'ANCHOR_LOT_AWARD', # 天选时刻中奖名单
+    'COMBO_SEND', # 礼物连击
+    'COMMON_NOTICE_DANMAKU', # 通用通知，含红包礼物涨粉、直播活动信息等
+    'DANMU_AGGREGATION', # 抽奖弹幕，包含天选抽奖弹幕、红包抽奖弹幕等
+    'ENTRY_EFFECT', # 入场特效
     'FULL_SCREEN_SPECIAL_EFFECT',
     'GIFT_PANEL_PLAN',
+    'GIFT_STAR_PROCESS',
     'GUARD_ACHIEVEMENT_ROOM',
     'HOT_RANK_CHANGED',
     'HOT_RANK_CHANGED_V2',
-    'LIVE',
+    'LIVE', # 直播开始
     'LIVE_INTERACTIVE_GAME',
     'LIVE_OPEN_PLATFORM_GAME',
     'LIVE_PANEL_CHANGE_CONTENT',
-    'LIKE_INFO_V3_CLICK',
-    'LIKE_INFO_V3_UPDATE',
-    'NOTICE_MSG',
-    'ONLINE_RANK_COUNT',
-    'ONLINE_RANK_TOP3',
-    'ONLINE_RANK_V2',
+    'LIKE_INFO_V3_CLICK', # 用户点赞
+    'LIKE_INFO_V3_UPDATE', # 点赞总数量更新
+    'NOTICE_MSG', # 通知横幅
+    'ONLINE_RANK_COUNT', # 高能用户总数量
+    'ONLINE_RANK_TOP3', # 高能榜前三变化
+    'ONLINE_RANK_V2', # 高能榜前七名单
     'PK_BATTLE_START',
     'PK_BATTLE_START_NEW',
     'PK_BATTLE_PRE_NEW',
@@ -51,20 +52,19 @@ IGNORED_CMDS = (
     'PK_BATTLE_SETTLE_USER',
     'PK_BATTLE_SETTLE_V2',
     'POPULAR_RANK_CHANGED',
-    'POPULARITY_RED_POCKET_NEW',
-    'POPULARITY_RED_POCKET_START',
-    'POPULARITY_RED_POCKET_WINNER_LIST',
-    'PREPARING',
-    'ROOM_REAL_TIME_MESSAGE_UPDATE',
+    'POPULARITY_RED_POCKET_NEW', # 红包礼物
+    'POPULARITY_RED_POCKET_START', # 红包开抢
+    'POPULARITY_RED_POCKET_WINNER_LIST', # 红包中奖
+    'ROOM_REAL_TIME_MESSAGE_UPDATE', # 粉丝数等更新
     'ROOM_BLOCK_MSG',
     'ROOM_CHANGE',
     'ROOM_SKIN_MSG',
-    'STOP_LIVE_ROOM_LIST',
-    'SUPER_CHAT_MESSAGE_JPN',
+    'STOP_LIVE_ROOM_LIST', # 停播房间列表
+    'SUPER_CHAT_MESSAGE_JPN', # 醒目留言(日)
     'SUPER_CHAT_ENTRANCE',
     'TRADING_SCORE',
     'USER_TOAST_MSG',
-    'WIDGET_BANNER',
+    'WIDGET_BANNER', # 小部件横幅
     'WIDGET_GIFT_STAR_PROCESS',
 )
 
@@ -106,6 +106,12 @@ class BaseHandler(HandlerInterface):
 
     def __interact_word_callback(self, client: client_.BLiveClient, command: dict):
         return self._on_interact_word(client, models.InteractMessage.from_command(command['data']))
+    
+    def __preparing_callback(self, client: client_.BLiveClient, command: dict):
+        return self._on_preparing(client, models.PreparingMessage.from_command(command))
+    
+    def __watched_callback(self, client: client_.BLiveClient, command: dict):
+        return self._on_watched(client, models.WatchedMessage.from_command(command["data"]))
 
     # cmd -> 处理回调
     _CMD_CALLBACK_DICT: Dict[
@@ -130,6 +136,10 @@ class BaseHandler(HandlerInterface):
         'SUPER_CHAT_MESSAGE_DELETE': __super_chat_message_delete_callback,
         # 有人进入直播间
         'INTERACT_WORD': __interact_word_callback,
+        # 直播结束
+        'PREPARING': __preparing_callback,
+        # 观看人数变化
+        'WATCHED_CHANGE': __watched_callback,
     }
     # 忽略其他常见cmd
     for cmd in IGNORED_CMDS:
@@ -188,3 +198,12 @@ class BaseHandler(HandlerInterface):
         有人进入房间
         """
     
+    async def _on_preparing(self, client: client_.BLiveClient, message: models.PreparingMessage):
+        """
+        直播结束
+        """
+    
+    async def _on_watched(self, client: client_.BLiveClient, message: models.WatchedMessage):
+        """
+        观看人数变化
+        """

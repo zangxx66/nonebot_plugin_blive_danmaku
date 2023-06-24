@@ -1,8 +1,10 @@
 from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.adapters.onebot.v11 import Bot
-from nonebot import on_command, get_driver
+from nonebot import on_command
+from nonebot.log import logger
 from ...utils import get_type_id,permission_check
 from bilireq.user import get_user_info
+from bilireq.exceptions import ResponseCodeError
 from ...database import Db as db
 from ...config import danmaku_config
 
@@ -23,6 +25,7 @@ async def _(event: MessageEvent, bot: Bot):
         msg += (
             f"{name}({sub.uid}) "
             f"路灯：{'开' if sub.street_lamp else '关'} "
-            f"开播提醒：{'开' if danmaku_config.danmaku_group_notice else '关'}"
+            f"开播提醒：{'开' if danmaku_config.danmaku_group_notice else '关'} "
+            f"弹幕统计：{'开' if sub.statistics else '关'}"
         )
     await sub_list.finish(msg)

@@ -50,6 +50,7 @@ class Sub(BaseModel):
     uid=fields.BigIntField()
     street_lamp=fields.BooleanField()
     bot_id=fields.BigIntField()
+    statistics=fields.BooleanField(default=False)
 
 
 class LiveRoom(BaseModel):
@@ -61,6 +62,7 @@ class LiveRoom(BaseModel):
     name=fields.CharField(max_length=50)
     start_time=fields.BigIntField()
     end_time=fields.BigIntField()
+    watch_person=fields.BigIntField()
 
 
 class Danmaku(BaseModel):
@@ -71,3 +73,21 @@ class Danmaku(BaseModel):
     """创建时间"""
     live_duration=fields.CharField(max_length=50)
     """开播时长"""
+    type=fields.CharField(max_length=50, null=True)
+
+
+class Gift(BaseModel):
+    name=fields.CharField(max_length=200)
+    price=fields.DecimalField(max_digits=18,decimal_places=2)
+    num=fields.IntField()
+    uname=fields.CharField(max_length=50)
+    uid=fields.BigIntField()
+    guard=fields.IntField()
+    type=fields.CharField(max_length=50)
+    rid=fields.BigIntField()
+    create_time=fields.BigIntField()
+    live_duration=fields.CharField(max_length=50)
+
+
+def ignore_none(**args):
+    return { key: value for key, value in args.items() if value is not None }

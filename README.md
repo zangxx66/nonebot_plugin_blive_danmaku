@@ -56,7 +56,9 @@ python -m pip install nonebot-plugin-blive-danmaku
 |/开启路灯 UID|开启直播间弹幕监听|
 |/关闭路灯 UID|关闭直播间弹幕监听|
 |/订阅列表|| 
-|/查看面板|打开网页版查询|
+|/查看面板|打开网页版查询|  
+|/开启统计 UID|开启弹幕统计，包含每场直播弹幕数，平均弹幕数，观看人数，每分钟弹幕数。<br/>`注：开启后磁盘将增加更多的占用空间，如果磁盘空间不足建议关闭数据统计。`|
+|/关闭统计 UID|关闭弹幕统计|
 
 ## 效果预览 
 
@@ -102,6 +104,11 @@ Apache
 ```
 
 ## 更新日志 
+- v0.3.0
+    - 适配nonebot2 2.0.0
+    - 增加弹幕统计
+    - 新增记录SuperChat内容，可在面板生成SuperChat图片
+    - 更新依赖 [#11](https://github.com/zangxx66/nonebot_plugin_blive_danmaku/issues/11)
 - v0.2.9
     - 面板查询开播历史列表，标题旁展示该场直播的路灯数量
     - Bot被踢出群后清除该群的订阅
@@ -136,5 +143,6 @@ Apache
 ## 感谢
 - [HarukaBot](https://github.com/SK-415/HarukaBot)
 - [blivechat](https://github.com/xfgryujk/blivechat)
-- [nonebot2](https://v2.nonebot.dev/)
+- [nonebot2](https://v2.nonebot.dev/)  
+- [blive-sc-gen](https://github.com/FangDingli/blive-sc-gen)
 

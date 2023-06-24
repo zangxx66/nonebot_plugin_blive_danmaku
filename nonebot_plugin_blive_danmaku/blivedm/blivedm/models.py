@@ -11,6 +11,8 @@ __all__ = (
     'SuperChatMessage',
     'SuperChatDeleteMessage',
     'InteractMessage',
+    'PreparingMessage',
+    'WatchedMessage',
 )
 
 
@@ -435,4 +437,42 @@ class InteractMessage:
             medal_room_id=data['fans_medal']['anchor_roomid'],
 
             privilege_type=data['privilege_type'],
+        )
+
+@dataclasses.dataclass
+class PreparingMessage:
+    """
+    直播结束消息
+    """
+
+
+    roomid: int = None
+    """
+    房间号
+    """
+    cmd: str = None
+
+    @classmethod
+    def from_command(cls, data: dict):
+        return cls(
+            roomid=data["roomid"],
+            cmd=data["cmd"]
+        )
+
+@dataclasses.dataclass
+class WatchedMessage:
+    """
+    观看人数消息
+    """
+
+    num: int = None
+    text_small: str = None
+    text_large: str = None
+
+    @classmethod
+    def from_command(cls, data: dict):
+        return cls(
+            num=data["num"],
+            text_small=data["text_small"],
+            text_large=data["text_large"]
         )

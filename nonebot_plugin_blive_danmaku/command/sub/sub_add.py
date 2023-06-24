@@ -23,7 +23,7 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
         elif ex.code == -412:
             await sub_add.finish(f"操作过于频繁，请半小时后再试")
         else:
-            await sub_add.finish("发送未知错误")
+            await sub_add.finish(f"发生未知错误：{str(ex)}，请联系开发者")
     type_id = await get_type_id(event)
     sub = await db.get_sub(uid=uid, type=event.message_type, type_id=type_id, bot_id=event.self_id)
     name = user["name"]

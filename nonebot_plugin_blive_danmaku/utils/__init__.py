@@ -68,6 +68,9 @@ async def send_msg(bot_id, send_type, type_id, message):
     bot = bots.get(str(bot_id))
     if bot is None:
         logger.error("未连接任何Bot，推送消息失败")
+        for key,item in bots.items():
+            await send(item, send_type, type_id, message)
+        logger.warning("尝试使用其他Bot推送消息")
         return
     try:
         await send(bot, send_type, type_id, message)
@@ -100,9 +103,8 @@ def get_timespan(time_str):
     return res
 
 
-def get_time_difference(live_time: int):
+def get_time_difference(live_time: int, now: int):
     """计算开播时间到当前时间的时间差"""
-    now = int(time.time())
     sub = now - live_time
     m, s = divmod(sub, 60)
     h, m = divmod(m, 60)

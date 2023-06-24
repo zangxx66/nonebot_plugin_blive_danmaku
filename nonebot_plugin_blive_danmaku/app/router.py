@@ -24,7 +24,7 @@ async def get_type_sub_list(type:str = Query(..., max_length=50),
     """
     skip = (page - 1) * size
     where = "1=1 "
-    where += f"and type='{type}' "
+    where += f"and s.type='{type}' "
     if type_id > 0:
         where += f"and type_id='{type_id}' "
     if title is not None:
@@ -45,17 +45,18 @@ async def get_room_info(id: int = Query(...)):
     """
     获取直播场次信息
     """
-    room_info = await db.get_room(id=id)
+    # room_info = await db.get_room(id=id)
+    room_info = await db.get_room_info(id=id)
     if not room_info:
         return models.ResponseItem(code=-1, msg="房间号码有误", data=None)
     return models.ResponseItem(code=0, msg="", data={"room_info": room_info})
 
 @router.get("/get_room_danmaku", response_model=models.ResponseItem)
-async def get_room_danmaku(rid: int = Query(...)):
+async def get_room_danmaku(rid: int = Query(...), type: str = Query(None)):
     """
-    获取直播弹幕
+    获取弹幕
     """
-    danmaku_list = await db.get_danmaku_by_rid(room_id=rid)
+    danmaku_list = await db.get_danmaku_by_rid(room_id=rid, type=type)
     return models.ResponseItem(code=0, msg="", data={"rows": danmaku_list, "total": len(danmaku_list)})
 
 @router.get("/get_liver_list", response_model=models.ResponseItem)
@@ -89,10 +90,29 @@ async def clear_cache(type: str=Query(...), type_id: int=Query(...), uid: int=Qu
         save_path = os.path.join(full_path, filename)
         if os.path.isfile(save_path):
             os.remove(save_path)
-    return models.ResponseItem(code=0)
+    return models.ResponseItem(code=0, msg=None, data=None)
 
 @router.get("/get_liver_name", response_model=models.ResponseItem)
 async def get_liver_name(uid: int=Query(...)):
     dy = (await grpc_get_user_dynamics(uid)).list
     name = dy[0].modules[0].module_author.author.name
-    return models.ResponseItem(code=0, data={"data": name})
+    return models.ResponseItem(code=0, data={"data": name}, msg=None)
+
+@router.get("/get_gift", response_model=models.ResponseItem)
+async def get_gift(rid: int = Query(...), page: int = Query(1), size: int = Query(50), keyword: str = Query(None), type: str = Query(None)):
+    """
+    获取礼物列表
+    """
+    total = await db.get_gift_count(room_id=rid)
+
+    skip = (page - 1) * size
+    rows = await db.get_gift_by_paged(room_id=rid, page=skip, size=size, keyword=keyword, type=type)
+    return models.ResponseItem(code=0, data={"rows": rows, "total": total}, msg=None)
+
+@router.get("/get_statistics", response_model=models.ResponseItem)
+async def get_statistics(rid: int = Query(...)):
+    """
+    获取统计数据
+    """
+    res = await db.get_statistics(room_id=rid)
+    return models.ResponseItem(code=0, data=res, msg=None)
