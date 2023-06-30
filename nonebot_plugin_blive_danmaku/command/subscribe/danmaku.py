@@ -64,28 +64,6 @@ async def danmaku():
                         info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
                     )
                     await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
-        # else:
-        #     if new_status == 0:
-        #         model = index[0]
-        #         client = model.client
-        #         room_id = info["short_id"] if info["short_id"] else info["room_id"]
-        #         try:
-        #             asyncio.gather(client.join())
-        #         finally:
-        #             await asyncio.gather(client.stop_and_close())
-        #             clients.remove(model)
-        #             logger.info(f'{info["uname"]}下播了，断开直播间连接')
-        #         now = int(time.time())
-        #         room_list = await db.get_rooms(room_id=room_id, end_time=0)
-        #         room_list.sort(key=lambda x:x.start_time, reverse=True)
-        #         room = room_list[0]
-        #         await db.update_room("end_time", now, id=room.id)
-
-        #         subs = await db.get_subs(uid=uid,street_lamp=True)
-        #         for sub in subs:
-        #             msg = f'{info["uname"]}下播了，可前往面板查看本次直播的路灯记录：{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}&uid={sub.uid}'
-        #             await send_msg(bot_id=sub.bot_id,send_type=sub.type,type_id=sub.type_id,message=msg)
-
     
 
 class MsgHandler(blivedm.BaseHandler):

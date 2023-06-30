@@ -16,7 +16,7 @@ class Db:
             "connections":{"danmaku_bot":f"sqlite://{get_path('danmakuBot.sqlite3')}"},
             "apps":{
                 __version__ :{
-                    "models":["aerich.models","nonebot_plugin_blive_danmaku.database.model"],
+                    "models":["nonebot_plugin_blive_danmaku.database.model"],
                     "default_connection":"danmaku_bot"
                 }
             }
