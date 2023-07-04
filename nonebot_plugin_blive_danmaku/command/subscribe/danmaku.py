@@ -18,7 +18,7 @@ class ClientModel:
         self.client=blivedm.BLiveClient(room_id)
 
 
-clients = []
+clients:list[ClientModel] = []
 driver = get_driver()
 host = danmaku_config.danmaku_host if danmaku_config.danmaku_host else f"http://{driver.config.host}:{driver.config.port}"
 
@@ -44,26 +44,26 @@ async def danmaku():
     for uid, info in res.items():
         new_status = 0 if info["live_status"] == 2 else info["live_status"]
         index = [x for x in clients if x.uid == uid]
-        if not index:
-            if new_status:
-                logger.info(f'{info["uname"]}开播了，连接直播间')
-                room_id = info["short_id"] if info["short_id"] else info["room_id"]
-                room_info = await get_room_info_by_id(room_id, reqtype="web")
-                model = ClientModel(room_id)
-                model.client.add_handler(handler)
-                model.client.start()
-                model.uid=uid
-                model.name=info["uname"]
-                model.live_time=get_timespan(room_info["live_time"])
-                clients.append(model)
+        if not index and new_status:
+            logger.info(f'{info["uname"]}开播了，连接直播间')
 
-                start_timespan = get_timespan(room_info["live_time"])
-                room = await db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
-                if not room:
-                    cover = (
-                        info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
-                    )
-                    await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0)
+            room_id = info["short_id"] if info["short_id"] else info["room_id"]
+            room_info = await get_room_info_by_id(room_id, reqtype="web")
+            start_timespan = get_timespan(room_info["live_time"])
+            model = ClientModel(room_id)
+            model.client.add_handler(handler)
+            model.client.start()
+            model.uid=uid
+            model.name=info["uname"]
+            model.live_time=start_timespan
+            clients.append(model)
+
+            room = await db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
+            if room is None:
+                cover = (
+                    info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
+                )
+                await db.add_room(room_id=room_id, uid=uid, cover=cover, title=info["title"], name=info["uname"], start_time=start_timespan, end_time=0, watch_person=0)
     
 
 class MsgHandler(blivedm.BaseHandler):
@@ -93,25 +93,28 @@ class MsgHandler(blivedm.BaseHandler):
         model = index[0]
         if not model:
             return
+        await disconnect_room(model)
         now = int(time.time())
-        room_list = await db.get_rooms(room_id=client.room_id, end_time=0)
-        room_list.sort(key=lambda x:x.start_time, reverse=True)
-        room = room_list[0]
+        room = await db.get_room(room_id=client.room_id, start_time=model.live_time)
+        if room is None:
+            return
         await db.update_room("end_time", now, id=room.id)
         subs = await db.get_subs(uid=client.room_owner_uid,street_lamp=True)
         for sub in subs:
             msg = f'{model.name}下播了，可前往面板查看本次直播的路灯记录：{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}&uid={sub.uid}'
             await send_msg(bot_id=sub.bot_id,send_type=sub.type,type_id=sub.type_id,message=msg)
-        await disconnect_room(model)
     
     async def _on_watched(self, client: blivedm.BLiveClient, message: blivedm.WatchedMessage):
         room_list = await db.get_rooms(room_id=client.room_id, end_time=0)
         room_list.sort(key=lambda x:x.start_time, reverse=True)
         room = room_list[0]
+        if room is None:
+            return
+
         await db.update_room("watch_person", message.num, id=room.id)
 
 
-async def disconnect_room(model):
+async def disconnect_room(model: ClientModel):
     client = model.client
     try:
         asyncio.gather(client.join())
@@ -123,28 +126,25 @@ async def disconnect_room(model):
 
 async def save_danmaku(room_id, uid, send_name: str, timestamp: int, raw_msg: str):
     datetime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
-    subs = await db.get_subs(uid=uid)
-    if not subs:
+    index = [x for x in clients if x.uid == str(uid)]
+    if not index:
         return
-    for sub in subs:
-        index = [x for x in clients if x.uid == str(sub.uid)]
-        if not index:
-            continue
-        model = index[0]
-
-        dt = get_time_difference(model.live_time, timestamp)
-        room_list = await db.get_rooms(room_id=room_id, end_time=0)
-        room_list.sort(key=lambda x:x.start_time, reverse=True)
-        room = room_list[0]
-
-        danmaku_type = "danamku"
-        if raw_msg.startswith("#路灯"):
-            blive_danmaku = raw_msg.replace("#路灯","", 1).strip()
-            street_lamp = f'【{model.name}】 在 {datetime}({dt}) 收到了 {send_name} 发来的路灯【{blive_danmaku}】'
+    model = index[0]
+    dt = get_time_difference(model.live_time, timestamp)
+    room = await db.get_room(room_id=room_id, start_time=model.live_time)
+    if room is None:
+        return
+    danmaku_type = "danamku"
+    statistics_list = await db.get_subs(uid=uid,statistics=True)
+    if raw_msg.startswith("#路灯"):
+        blive_danmaku = raw_msg.replace("#路灯","", 1).strip()
+        street_lamp = f'【{model.name}】 在 {datetime}({dt}) 收到了 {send_name} 发来的路灯【{blive_danmaku}】'
+        danmaku_type = "street_lamp"
+        subs = await db.get_subs(uid=uid, street_lamp=True)
+        for sub in subs:
             await send_msg(bot_id=sub.bot_id, send_type=sub.type, type_id=sub.type_id, message=street_lamp)
-            danmaku_type = "street_lamp"
-        if(sub.statistics is False and danmaku_type == "danamku"):
-            continue
+        await db.add_danmaku(room_id=room.id, uname=send_name, message=raw_msg, create_time=datetime, live_duration=dt, type=danmaku_type)
+    if danmaku_type == "danamku" and len(statistics_list) > 0:
         await db.add_danmaku(room_id=room.id, uname=send_name, message=raw_msg, create_time=datetime, live_duration=dt, type=danmaku_type)
 
 
@@ -155,9 +155,10 @@ async def save_gift(room_id, uid, send_name: str, send_uid: int, name: str, pric
         return
     model = index[0]
     dt = get_time_difference(model.live_time, datetime)
-    room_list = await db.get_rooms(room_id=room_id, end_time=0)
-    room_list.sort(key=lambda x:x.start_time, reverse=True)
-    room = room_list[0]
+    room = await db.get_room(room_id=room_id, start_time=model.live_time)
+    if room is None:
+        return
+
     coin = price if type == 'sc' else price / 1000
     await db.add_gift(rid=room.id, name=name, price=coin, num=num, uname=send_name, uid=send_uid, type=type, create_time=datetime, live_duration=dt, guard=guard_level)
         

@@ -19,6 +19,7 @@ IGNORED_CMDS = (
     'ANCHOR_LOT_START', # 天选时刻抽奖开始
     'ANCHOR_LOT_END', # 天选时刻抽奖结束
     'ANCHOR_LOT_AWARD', # 天选时刻中奖名单
+    'ANCHOR_HELPER_DANMU',
     'COMBO_SEND', # 礼物连击
     'COMMON_NOTICE_DANMAKU', # 通用通知，含红包礼物涨粉、直播活动信息等
     'DANMU_AGGREGATION', # 抽奖弹幕，包含天选抽奖弹幕、红包抽奖弹幕等
@@ -27,6 +28,7 @@ IGNORED_CMDS = (
     'GIFT_PANEL_PLAN',
     'GIFT_STAR_PROCESS',
     'GUARD_ACHIEVEMENT_ROOM',
+    'GUARD_HONOR_THOUSAND',
     'HOT_RANK_CHANGED',
     'HOT_RANK_CHANGED_V2',
     'LIVE', # 直播开始
@@ -35,6 +37,8 @@ IGNORED_CMDS = (
     'LIVE_PANEL_CHANGE_CONTENT',
     'LIKE_INFO_V3_CLICK', # 用户点赞
     'LIKE_INFO_V3_UPDATE', # 点赞总数量更新
+    'LIKE_INFO_V3_NOTICE', # 双击点赞提示
+    'MESSAGEBOX_USER_GAIN_MEDAL', # 加入粉丝团？
     'NOTICE_MSG', # 通知横幅
     'ONLINE_RANK_COUNT', # 高能用户总数量
     'ONLINE_RANK_TOP3', # 高能榜前三变化
@@ -59,6 +63,8 @@ IGNORED_CMDS = (
     'ROOM_BLOCK_MSG',
     'ROOM_CHANGE',
     'ROOM_SKIN_MSG',
+    'SPREAD_SHOW_FEET', # 流量包推广
+    'SPRED_SHOW_FEET_V2', # 流量包推广
     'STOP_LIVE_ROOM_LIST', # 停播房间列表
     'SUPER_CHAT_MESSAGE_JPN', # 醒目留言(日)
     'SUPER_CHAT_ENTRANCE',

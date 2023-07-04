@@ -1,8 +1,10 @@
+import nonebot
 from .utils import on_startup
-from nonebot import get_driver, get_app
+from nonebot import get_driver
 from nonebot.log import logger
 from nonebot.plugin import PluginMetadata
 from .config import Config as danmaku_config
+from fastapi import FastAPI
 
 __plugin_meta__ = PluginMetadata(
     name = "B站直播间路灯插件",
@@ -19,9 +21,12 @@ __version__ = "0.3.0"
 driver = get_driver()
 driver.on_startup(on_startup)
 
-from . import command, app
+from .app import app
+from . import command
 host = driver.config.host
 port = driver.config.port
-get_app().mount("/danmaku", app.app, name="blive-danmaku plugin")
+
+fast_api: FastAPI = nonebot.get_app()
+fast_api.mount("/danmaku", app, name="blive-danmaku plugin")
 logger.info("Web UI running on "
             f"http://{host}:{port}/danmaku/")
