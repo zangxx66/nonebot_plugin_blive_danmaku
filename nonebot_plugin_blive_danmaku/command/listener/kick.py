@@ -6,6 +6,7 @@ from ...database.db import Db as db
 
 notice_listener = on_notice(priority=5)
 
+
 @notice_listener.handle()
 async def handle_group_kick(bot: Bot, event: GroupDecreaseNoticeEvent):
     """

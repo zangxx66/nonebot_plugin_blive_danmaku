@@ -45,48 +45,48 @@ class BaseModel(Model):
 
 
 class Sub(BaseModel):
-    type_id=fields.BigIntField()
-    type=fields.CharField(max_length=10)
-    uid=fields.BigIntField()
-    street_lamp=fields.BooleanField()
-    bot_id=fields.BigIntField()
-    statistics=fields.BooleanField(default=False)
+    type_id = fields.BigIntField()
+    type = fields.CharField(max_length=10)
+    uid = fields.BigIntField()
+    street_lamp = fields.BooleanField()
+    bot_id = fields.BigIntField()
+    statistics = fields.BooleanField(default=False)
 
 
 class LiveRoom(BaseModel):
-    id=fields.IntField(pk=True, generated=True)
-    room_id=fields.BigIntField()
-    cover=fields.CharField(max_length=500)
-    title=fields.CharField(max_length=50)
-    uid=fields.BigIntField()
-    name=fields.CharField(max_length=50)
-    start_time=fields.BigIntField()
-    end_time=fields.BigIntField()
-    watch_person=fields.BigIntField()
+    id = fields.IntField(pk=True, generated=True)
+    room_id = fields.BigIntField()
+    cover = fields.CharField(max_length=500)
+    title = fields.CharField(max_length=50)
+    uid = fields.BigIntField()
+    name = fields.CharField(max_length=50)
+    start_time = fields.BigIntField()
+    end_time = fields.BigIntField()
+    watch_person = fields.BigIntField()
 
 
 class Danmaku(BaseModel):
-    room_id=fields.BigIntField()
-    uname=fields.CharField(max_length=50)
-    message=fields.CharField(max_length=5000)
-    create_time=fields.CharField(max_length=50)
+    room_id = fields.BigIntField()
+    uname = fields.CharField(max_length=50)
+    message = fields.CharField(max_length=5000)
+    create_time = fields.CharField(max_length=50)
     """创建时间"""
-    live_duration=fields.CharField(max_length=50)
+    live_duration = fields.CharField(max_length=50)
     """开播时长"""
-    type=fields.CharField(max_length=50, null=True)
+    type = fields.CharField(max_length=50, null=True)
 
 
 class Gift(BaseModel):
-    name=fields.CharField(max_length=200)
-    price=fields.DecimalField(max_digits=18,decimal_places=2)
-    num=fields.IntField()
-    uname=fields.CharField(max_length=50)
-    uid=fields.BigIntField()
-    guard=fields.IntField()
-    type=fields.CharField(max_length=50)
-    rid=fields.BigIntField()
-    create_time=fields.BigIntField()
-    live_duration=fields.CharField(max_length=50)
+    name = fields.CharField(max_length=200)
+    price = fields.DecimalField(max_digits=18,decimal_places=2)
+    num = fields.IntField()
+    uname = fields.CharField(max_length=50)
+    uid = fields.BigIntField()
+    guard = fields.IntField()
+    type = fields.CharField(max_length=50)
+    rid = fields.BigIntField()
+    create_time = fields.BigIntField()
+    live_duration = fields.CharField(max_length=50)
 
 
 def ignore_none(**args):

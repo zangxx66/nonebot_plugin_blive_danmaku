@@ -18,7 +18,13 @@ if not dist_path.is_dir():
 if not cache_path.is_dir():
     Path.mkdir(cache_path)
 
-app = FastAPI(title="nonebot_plugin_blive_danmaku", description="live room danmaku manager", version="0.2.0", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="nonebot_plugin_blive_danmaku", 
+              description="live room danmaku manager", 
+              version="0.2.0", 
+              docs_url=None, 
+              redoc_url=None, 
+              openapi_url=None)
+
 
 @app.exception_handler(RequestValidationError)
 async def exception_handle(request: Request, exc: RequestValidationError):
@@ -35,5 +41,4 @@ templates = Jinja2Templates(directory=dist_path)
 
 @app.get("/")
 async def main(request: Request):
-    return templates.TemplateResponse("index.html", { "request": request })
-
+    return templates.TemplateResponse("index.html", {"request": request})

@@ -10,15 +10,15 @@ full_path = Path(__file__).parent / "frontend" / "static"
 
 
 @router.get("/get_sub_list", response_model=models.ResponseItem)
-async def get_type_sub_list(type:str = Query(..., max_length=50), 
-                            type_id: int = Query(...), 
+async def get_type_sub_list(type: str = Query(..., max_length=50),
+                            type_id: int = Query(...),
                             uid: int = Query(None),
-                            page:int = Query(1), 
-                            size:int = Query(30), 
-                            title: str= Query(None), 
+                            page: int = Query(1),
+                            size: int = Query(30),
+                            title: str= Query(None),
                             danmaku: str= Query(None),
-                            start:int = Query(None), 
-                            end:int = Query(None)):
+                            start: int = Query(None),
+                            end: int = Query(None)):
     """
     获取订阅主播的直播列表
     """
@@ -37,8 +37,9 @@ async def get_type_sub_list(type:str = Query(..., max_length=50),
         where += f"and message like '%{danmaku}%' "
     if uid is not None and uid > 0:
         where += f"and room.uid='{uid}' "
-    total,dict = await db.get_rooms_by_paged(size, skip, where)
+    total, dict = await db.get_rooms_by_paged(size, skip, where)
     return models.ResponseItem(code=0, msg="", data={"rows": dict, "total": total})
+
 
 @router.get("/get_room", response_model=models.ResponseItem)
 async def get_room_info(id: int = Query(...)):
@@ -51,6 +52,7 @@ async def get_room_info(id: int = Query(...)):
         return models.ResponseItem(code=-1, msg="房间号码有误", data=None)
     return models.ResponseItem(code=0, msg="", data={"room_info": room_info})
 
+
 @router.get("/get_room_danmaku", response_model=models.ResponseItem)
 async def get_room_danmaku(rid: int = Query(...), type: str = Query(None)):
     """
@@ -59,8 +61,9 @@ async def get_room_danmaku(rid: int = Query(...), type: str = Query(None)):
     danmaku_list = await db.get_danmaku_by_rid(room_id=rid, type=type)
     return models.ResponseItem(code=0, msg="", data={"rows": danmaku_list, "total": len(danmaku_list)})
 
+
 @router.get("/get_liver_list", response_model=models.ResponseItem)
-async def get_liver_list(type:str=Query(...),type_id=Query(...)):
+async def get_liver_list(type: str = Query(...),type_id = Query(...)):
     """
     获取订阅的主播列表
     """
@@ -72,6 +75,7 @@ async def get_liver_list(type:str=Query(...),type_id=Query(...)):
         result.append({"name": name, "uid": sub.uid})
     return models.ResponseItem(code=0, msg="", data={"data": result})
 
+
 @router.get("/clear_cache", response_model=models.ResponseItem)
 async def clear_cache(type: str=Query(...), type_id: int=Query(...), uid: int=Query(None)):
     """
@@ -80,8 +84,8 @@ async def clear_cache(type: str=Query(...), type_id: int=Query(...), uid: int=Qu
     subs = await db.get_subs(type=type, type_id=type_id)
     room_list = []
     for sub in subs:
-        l = await db.get_rooms(uid=sub.uid)
-        room_list.extend(l)
+        live_room = await db.get_rooms(uid=sub.uid)
+        room_list.extend(live_room)
     for room in room_list:
         filename = os.path.basename(room.cover)
         origin_url = "https://i0.hdslb.com/bfs/live/new_room_cover/" + filename
@@ -92,14 +96,20 @@ async def clear_cache(type: str=Query(...), type_id: int=Query(...), uid: int=Qu
             os.remove(save_path)
     return models.ResponseItem(code=0, msg=None, data=None)
 
+
 @router.get("/get_liver_name", response_model=models.ResponseItem)
 async def get_liver_name(uid: int=Query(...)):
     dy = (await grpc_get_user_dynamics(uid)).list
     name = dy[0].modules[0].module_author.author.name
     return models.ResponseItem(code=0, data={"data": name}, msg=None)
 
+
 @router.get("/get_gift", response_model=models.ResponseItem)
-async def get_gift(rid: int = Query(...), page: int = Query(1), size: int = Query(50), keyword: str = Query(None), type: str = Query(None)):
+async def get_gift(rid: int = Query(...),
+                    page: int = Query(1),
+                    size: int = Query(50),
+                    keyword: str = Query(None),
+                    type: str = Query(None)):
     """
     获取礼物列表
     """
@@ -108,6 +118,7 @@ async def get_gift(rid: int = Query(...), page: int = Query(1), size: int = Quer
     skip = (page - 1) * size
     rows = await db.get_gift_by_paged(room_id=rid, page=skip, size=size, keyword=keyword, type=type)
     return models.ResponseItem(code=0, data={"rows": rows, "total": total}, msg=None)
+
 
 @router.get("/get_statistics", response_model=models.ResponseItem)
 async def get_statistics(rid: int = Query(...)):

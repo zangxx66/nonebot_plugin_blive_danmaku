@@ -2,7 +2,7 @@ from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.adapters.onebot.v11 import Bot
 from nonebot import on_command
 from nonebot.log import logger
-from ...utils import get_type_id,permission_check
+from ...utils import get_type_id, permission_check
 from bilireq.user import get_user_info
 from bilireq.exceptions import ResponseCodeError
 from ...database import Db as db
@@ -12,6 +12,7 @@ from ...config import danmaku_config
 sub_list = on_command("订阅列表", priority=5)
 sub_list.__doc__ = """订阅列表"""
 sub_list.handle()(permission_check)
+
 
 @sub_list.handle()
 async def _(event: MessageEvent, bot: Bot):

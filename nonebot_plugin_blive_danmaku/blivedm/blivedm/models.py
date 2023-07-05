@@ -385,17 +385,13 @@ class SuperChatDeleteMessage:
             ids=data['ids'],
         )
 
+
 # TODO: InteractMessage 的数据模型，决定怎么接ws的数据，并存储为object
 @dataclasses.dataclass
 class InteractMessage:
     """
     进房消息
     """
-    
-
-
-
-    
     timestamp: int = None,
     """时间戳（毫秒）"""
     uid: int = None,
@@ -439,13 +435,12 @@ class InteractMessage:
             privilege_type=data['privilege_type'],
         )
 
+
 @dataclasses.dataclass
 class PreparingMessage:
     """
     直播结束消息
     """
-
-
     roomid: int = None
     """
     房间号

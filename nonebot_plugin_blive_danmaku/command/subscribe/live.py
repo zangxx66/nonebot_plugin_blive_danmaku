@@ -56,4 +56,3 @@ async def live():
         sub_list = await db.get_subs(uid=uid)
         for sub in sub_list:
             await send_msg(bot_id=sub.bot_id, send_type=sub.type, type_id=sub.type_id, message=msg)
-            
