@@ -40,4 +40,3 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
         await sub_statistics_on.finish(f'已开启 {uid} 弹幕统计')
     else:
         await sub_statistics_on.finish(f'开启 {uid} 弹幕统计，失败，请重试')
-

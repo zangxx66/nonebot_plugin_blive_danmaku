@@ -4,7 +4,6 @@ from nonebot import on_command
 from nonebot.log import logger
 from ...utils import get_type_id, permission_check
 from bilireq.user import get_user_info
-from bilireq.exceptions import ResponseCodeError
 from ...database import Db as db
 from ...config import danmaku_config
 

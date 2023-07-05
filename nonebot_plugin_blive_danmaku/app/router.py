@@ -15,8 +15,8 @@ async def get_type_sub_list(type: str = Query(..., max_length=50),
                             uid: int = Query(None),
                             page: int = Query(1),
                             size: int = Query(30),
-                            title: str= Query(None),
-                            danmaku: str= Query(None),
+                            title: str = Query(None),
+                            danmaku: str = Query(None),
                             start: int = Query(None),
                             end: int = Query(None)):
     """
@@ -63,11 +63,11 @@ async def get_room_danmaku(rid: int = Query(...), type: str = Query(None)):
 
 
 @router.get("/get_liver_list", response_model=models.ResponseItem)
-async def get_liver_list(type: str = Query(...),type_id = Query(...)):
+async def get_liver_list(type: str = Query(...), type_id = Query(...)):
     """
     获取订阅的主播列表
     """
-    subs = await db.get_subs(type=type,type_id=type_id)
+    subs = await db.get_subs(type=type, type_id=type_id)
     result = []
     for sub in subs:
         dy = (await grpc_get_user_dynamics(sub.uid)).list
@@ -77,7 +77,7 @@ async def get_liver_list(type: str = Query(...),type_id = Query(...)):
 
 
 @router.get("/clear_cache", response_model=models.ResponseItem)
-async def clear_cache(type: str=Query(...), type_id: int=Query(...), uid: int=Query(None)):
+async def clear_cache(type: str = Query(...), type_id: int = Query(...), uid: int = Query(None)):
     """
     重置封面图片
     """
@@ -98,7 +98,7 @@ async def clear_cache(type: str=Query(...), type_id: int=Query(...), uid: int=Qu
 
 
 @router.get("/get_liver_name", response_model=models.ResponseItem)
-async def get_liver_name(uid: int=Query(...)):
+async def get_liver_name(uid: int = Query(...)):
     dy = (await grpc_get_user_dynamics(uid)).list
     name = dy[0].modules[0].module_author.author.name
     return models.ResponseItem(code=0, data={"data": name}, msg=None)
@@ -106,10 +106,10 @@ async def get_liver_name(uid: int=Query(...)):
 
 @router.get("/get_gift", response_model=models.ResponseItem)
 async def get_gift(rid: int = Query(...),
-                    page: int = Query(1),
-                    size: int = Query(50),
-                    keyword: str = Query(None),
-                    type: str = Query(None)):
+                   page: int = Query(1),
+                   size: int = Query(50),
+                   keyword: str = Query(None),
+                   type: str = Query(None)):
     """
     获取礼物列表
     """

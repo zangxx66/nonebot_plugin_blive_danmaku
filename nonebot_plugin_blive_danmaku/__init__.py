@@ -5,8 +5,6 @@ from nonebot.log import logger
 from nonebot.plugin import PluginMetadata
 from .config import Config as danmaku_config
 from fastapi import FastAPI
-from .app import app
-from . import command
 
 __plugin_meta__ = PluginMetadata(
     name="B站直播间路灯插件",
@@ -19,6 +17,8 @@ __plugin_meta__ = PluginMetadata(
     extra={}
 )
 __version__ = "0.3.3"
+from . import command
+from .app import app
 
 driver = get_driver()
 driver.on_startup(on_startup)

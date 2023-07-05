@@ -14,21 +14,20 @@ class Db:
     @classmethod
     async def init(cls):
         config = {
-            "connections": {"danmaku_bot":f"sqlite://{get_path('danmakuBot.sqlite3')}"},
+            "connections": {"danmaku_bot": f"sqlite://{get_path('danmakuBot.sqlite3')}"},
             "apps": {
-                __version__ : {
+                __version__: {
                     "models": ["nonebot_plugin_blive_danmaku.database.model"],
                     "default_connection": "danmaku_bot"
                 }
             }
         }
 
-        await Tortoise.init(config=config) # type:ignore
-        await Tortoise.generate_schemas() # type:ignore
+        await Tortoise.init(config=config)  # type:ignore
+        await Tortoise.generate_schemas()  # type:ignore
         await cls.migrate()
         await cls.update_sub_list()
         logger.info("load db")
-
 
     @classmethod
     async def add_sub(cls, **kwargs) -> bool:
@@ -64,13 +63,13 @@ class Db:
     @classmethod
     def get_sub_list(cls, key):
         return sub_dict[key]
- 
+
     @classmethod
     async def update_sub_list(cls):
         subs = Sub.all()
         sub_dict["street_lamp"] = list(set([sub.uid async for sub in subs if sub.street_lamp]))
         sub_dict["live"] = list(set([x.uid async for x in subs]))
-    
+
     @classmethod
     async def get_rooms(cls, **kwargs):
         res = await LiveRoom.get(**kwargs)
@@ -78,25 +77,25 @@ class Db:
 
     @classmethod
     async def get_rooms_by_paged(cls, limit, offset, where):
-        conn = Tortoise.get_connection("danmaku_bot") # type:ignore
-        _,rows = await conn.execute_query(f"""select * from 
+        conn = Tortoise.get_connection("danmaku_bot")  # type:ignore
+        _, rows = await conn.execute_query(f"""select * from
                                                         (select distinct room.*,(select count(1) from danmaku a where a.room_id=room.id and (a.type is null or a.type='street_lamp')) count
-                                                            from LiveRoom room 
+                                                            from LiveRoom room
                                                             left join Sub s on s.uid=room.uid
                                                             left join danmaku d on room.id = d.room_id and (d.type is null or d.type='street_lamp')
-                                                            where {where} 
+                                                            where {where}
                                                             )t
                                                             order by start_time desc
-                                                            limit ? offset ?""",[limit,offset])
-        _,dict = await conn.execute_query(f"""select count(distinct id) total from 
-                                                (select room.*,s.type,s.type_id,d.message 
-                                                from LiveRoom room 
+                                                            limit ? offset ?""", [limit, offset])
+        _, dict = await conn.execute_query(f"""select count(distinct id) total from
+                                                (select room.*,s.type,s.type_id,d.message
+                                                from LiveRoom room
                                                     left join Sub s on s.uid=room.uid
                                                     left join danmaku d on room.id = d.room_id and (d.type is null or d.type='street_lamp')
                                                  where {where}
                                                 )t""")
         total = dict[0]["total"]
-        return total,rows
+        return total, rows
 
     @classmethod
     async def get_room(cls, **kwargs):
@@ -105,7 +104,7 @@ class Db:
 
     @classmethod
     async def get_room_info(cls, id: int):
-        conn = Tortoise.get_connection("danmaku_bot") # type:ignore
+        conn = Tortoise.get_connection("danmaku_bot")  # type:ignore
         _, query = await conn.execute_query("""
                                         select room.*,s.statistics
                                         from liveroom room
@@ -118,7 +117,7 @@ class Db:
 
     @classmethod
     async def get_danmaku_by_rid(cls, room_id, type):
-        conn = Tortoise.get_connection("danmaku_bot") # type:ignore
+        conn = Tortoise.get_connection("danmaku_bot")  # type:ignore
         _, res = await conn.execute_query("""
                                                 select d.id,d.create_time,d.live_duration,d.uname,d.message,d.type,'0' num,'' price, '' guard, '' uid
                                                 from danmaku d
@@ -133,7 +132,6 @@ class Db:
                                                 and g.type='sc'
                                                 order by live_duration
         """, [room_id, room_id])
-        # res = await Danmaku.get(**ignore_none(room_id=room_id,type__contains=type)).order_by("create_time")
         return res
 
     @classmethod
@@ -174,19 +172,19 @@ class Db:
 
     @classmethod
     async def get_statistics(cls, room_id):
-        conn = Tortoise.get_connection("danmaku_bot") # type:ignore
+        conn = Tortoise.get_connection("danmaku_bot")  # type:ignore
         _, dict = await conn.execute_query("""select round(count(d.id)/((room.end_time-room.start_time)/60)) avg,
                                            count(d.id) danmaku_total,
-                                           room.watch_person  
-                                           from liveroom room 
-                                           left join danmaku d on d.room_id=room.id 
+                                           room.watch_person
+                                           from liveroom room
+                                           left join danmaku d on d.room_id=room.id
                                            where room.id=?""", [room_id])
         avg_min_danmaku = dict[0]["avg"]
         danmaku_total = dict[0]["danmaku_total"]
         watched = dict[0]["watch_person"]
-        _, hot_word = await conn.execute_query("""select message,count(1) sum from danmaku where room_id=? group by message order by count(1) desc limit 10""",[room_id])
-        _, min_danmaku = await conn.execute_query("""select create_time, live_duration, count(create_time) as sum, 
-                                                    datetime(strftime('%s',create_time)/60*60, 'unixepoch') as countTime 
+        _, hot_word = await conn.execute_query("""select message,count(1) sum from danmaku where room_id=? group by message order by count(1) desc limit 10""", [room_id])
+        _, min_danmaku = await conn.execute_query("""select create_time, live_duration, count(create_time) as sum,
+                                                    datetime(strftime('%s',create_time)/60*60, 'unixepoch') as countTime
                                                     from danmaku
                                                     where room_id=?
                                                     group by strftime('%s', countTime)
@@ -202,7 +200,7 @@ class Db:
 
     @classmethod
     async def migrate(cls):
-        conn = Tortoise.get_connection("danmaku_bot") # type:ignore
+        conn = Tortoise.get_connection("danmaku_bot")  # type:ignore
         # v0.3.0
         _, type = await conn.execute_query("select count(1) Total from sqlite_master where name='danmaku' and sql like '%type%'")
         total = type[0]["Total"]

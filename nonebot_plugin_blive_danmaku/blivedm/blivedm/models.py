@@ -416,7 +416,6 @@ class InteractMessage:
     privilege_type: int = None,
     """可能是？舰队类型，0非舰队，1总督，2提督，3舰长"""
 
-
     @classmethod
     def from_command(cls, data: dict):
         return cls(
@@ -453,6 +452,7 @@ class PreparingMessage:
             roomid=data["roomid"],
             cmd=data["cmd"]
         )
+
 
 @dataclasses.dataclass
 class WatchedMessage:

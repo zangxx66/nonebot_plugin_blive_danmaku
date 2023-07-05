@@ -16,6 +16,9 @@ from nonebot.adapters.onebot.v11.event import GroupMessageEvent, PrivateMessageE
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.exception import FinishedException
 from nonebot.permission import SUPERUSER
+from nonebot import require
+require("nonebot_plugin_apscheduler")
+from nonebot_plugin_apscheduler import scheduler
 
 
 def get_path(*other):
@@ -24,14 +27,14 @@ def get_path(*other):
     return str(dir_path.joinpath(*other))
 
 
-async def handle_uid(matcher: Matcher,command_arg: Message = CommandArg(),):
+async def handle_uid(matcher: Matcher, command_arg: Message = CommandArg(),):
     """获取uid"""
     uid = command_arg.extract_plain_text().strip()
     if uid:
         matcher.set_arg("uid", command_arg)
 
 
-async def uid_check(matcher: Matcher,uid: str = ArgPlainText("uid"),):
+async def uid_check(matcher: Matcher, uid: str = ArgPlainText("uid"),):
     """检查uid合法性"""
     uid = uid.strip()
     if not uid.isdecimal():
@@ -68,7 +71,7 @@ async def send_msg(bot_id, send_type, type_id, message):
     bot = bots.get(str(bot_id))
     if bot is None:
         logger.error("未连接任何Bot，推送消息失败")
-        for key,item in bots.items():
+        for key, item in bots.items():
             await send(item, send_type, type_id, message)
         logger.warning("尝试使用其他Bot推送消息")
         return
@@ -94,11 +97,12 @@ async def get_type_id(event):
 
 def on_startup():
     if not Path(get_path()).is_dir():
-            Path(get_path()).mkdir(parents=True)
+        Path(get_path()).mkdir(parents=True)
+
 
 def get_timespan(time_str):
     """字符串转时间戳"""
-    time_array = time.strptime(time_str,"%Y-%m-%d %H:%M:%S")
+    time_array = time.strptime(time_str, "%Y-%m-%d %H:%M:%S")
     res = int(time.mktime(time_array))
     return res
 
@@ -110,7 +114,3 @@ def get_time_difference(live_time: int, now: int):
     h, m = divmod(m, 60)
     dt = ("%02d:%02d:%02d" % (h, m, s))
     return dt
-
-from nonebot import require
-require("nonebot_plugin_apscheduler")
-from nonebot_plugin_apscheduler import scheduler
