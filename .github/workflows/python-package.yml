@@ -49,5 +49,5 @@ jobs:
       uses: actions/upload-artifact@v3
       if: ${{ !github.head_ref }}
       with:
-        name: nonebot_plugin_blive_danmaku_${{ matrix.python-version }}_${{ github.sha }}.whl
+        name: nonebot_plugin_blive_danmaku_py${{ matrix.python-version }}_${{ github.sha }}.whl
         path: dist/*.whl
