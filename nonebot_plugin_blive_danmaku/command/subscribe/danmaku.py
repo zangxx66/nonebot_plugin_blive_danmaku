@@ -114,7 +114,7 @@ class MsgHandler(blivedm.BaseHandler):
 
     async def _on_watched(self, client: blivedm.BLiveClient, message: blivedm.WatchedMessage):
         room_list = await db.get_rooms(room_id=client.room_id, end_time=0)
-        room_list.sort(key=lambda x:x.start_time, reverse=True)
+        room_list.sort(key=lambda x: x.start_time, reverse=True)
         room = room_list[0]
         if room is None:
             return
@@ -143,9 +143,9 @@ async def save_danmaku(room_id, uid, send_name: str, timestamp: int, raw_msg: st
     if room is None:
         return
     danmaku_type = "danamku"
-    statistics_list = await db.get_subs(uid=uid,statistics=True)
+    statistics_list = await db.get_subs(uid=uid, statistics=True)
     if raw_msg.startswith("#路灯"):
-        blive_danmaku = raw_msg.replace("#路灯","", 1).strip()
+        blive_danmaku = raw_msg.replace("#路灯", "", 1).strip()
         street_lamp = f'【{model.name}】 在 {datetime}({dt}) 收到了 {send_name} 发来的路灯【{blive_danmaku}】'
         danmaku_type = "street_lamp"
         subs = await db.get_subs(uid=uid, street_lamp=True)

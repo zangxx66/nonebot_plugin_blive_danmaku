@@ -2,6 +2,7 @@ from tortoise.models import Model
 from tortoise import fields
 from nonebot.log import logger
 
+
 class BaseModel(Model):
     @classmethod
     def get_(cls, *args, **kwargs):
@@ -78,7 +79,7 @@ class Danmaku(BaseModel):
 
 class Gift(BaseModel):
     name = fields.CharField(max_length=200)
-    price = fields.DecimalField(max_digits=18,decimal_places=2)
+    price = fields.DecimalField(max_digits=18, decimal_places=2)
     num = fields.IntField()
     uname = fields.CharField(max_length=50)
     uid = fields.BigIntField()

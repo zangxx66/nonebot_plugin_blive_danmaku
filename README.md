@@ -104,6 +104,8 @@ Apache
 ```
 
 ## 更新日志 
+- v0.3.4
+    - 添加词云
 - v0.3.3
     - 修复弹幕用户名打码
     - fix [#12](https://github.com/zangxx66/nonebot_plugin_blive_danmaku/issues/12)

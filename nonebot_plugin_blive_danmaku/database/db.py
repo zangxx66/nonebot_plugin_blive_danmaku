@@ -79,10 +79,13 @@ class Db:
     async def get_rooms_by_paged(cls, limit, offset, where):
         conn = Tortoise.get_connection("danmaku_bot")  # type:ignore
         _, rows = await conn.execute_query(f"""select * from
-                                                        (select distinct room.*,(select count(1) from danmaku a where a.room_id=room.id and (a.type is null or a.type='street_lamp')) count
+                                                        (select distinct room.*,(select count(1)
+                                                            from danmaku a where a.room_id=room.id
+                                                            and (a.type is null or a.type='street_lamp')) count
                                                             from LiveRoom room
                                                             left join Sub s on s.uid=room.uid
-                                                            left join danmaku d on room.id = d.room_id and (d.type is null or d.type='street_lamp')
+                                                            left join danmaku d on room.id = d.room_id
+                                                            and (d.type is null or d.type='street_lamp')
                                                             where {where}
                                                             )t
                                                             order by start_time desc
