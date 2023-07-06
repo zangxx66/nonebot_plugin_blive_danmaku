@@ -49,4 +49,4 @@ jobs:
       uses: actions/upload-artifact@v3
       if: ${{ !github.head_ref }}
       with:
-        path: dist/*.wheel
+        path: dist/*.whl
