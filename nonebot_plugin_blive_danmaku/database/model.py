@@ -91,4 +91,4 @@ class Gift(BaseModel):
 
 
 def ignore_none(**args):
-    return { key: value for key, value in args.items() if value is not None }
+    return {key: value for key, value in args.items() if value is not None}

@@ -185,7 +185,7 @@ class Db:
         avg_min_danmaku = dict[0]["avg"]
         danmaku_total = dict[0]["danmaku_total"]
         watched = dict[0]["watch_person"]
-        _, hot_word = await conn.execute_query("""select message,count(1) sum from danmaku where room_id=? group by message order by count(1) desc limit 10""", [room_id])
+        _, hot_word = await conn.execute_query("""select message,count(1) sum from danmaku where room_id=? group by message order by count(1) desc limit 20""", [room_id])
         _, min_danmaku = await conn.execute_query("""select create_time, live_duration, count(create_time) as sum,
                                                     datetime(strftime('%s',create_time)/60*60, 'unixepoch') as countTime
                                                     from danmaku
