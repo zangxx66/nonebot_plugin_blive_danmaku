@@ -63,6 +63,10 @@ python -m pip install nonebot-plugin-blive-danmaku
 ## 效果预览 
 
 ![](/doc/screenshot.png)  
+![](/doc/screenshot2.png)  
+![](/doc/screenshot4.png)  
+![](/doc/screenshot5.png)  
+![](/doc/screenshot6.png)
 
 ## 反向代理（可选，如果需要配置外部网络访问面板）  
 
@@ -105,7 +109,8 @@ Apache
 
 ## 更新日志 
 - v0.3.4
-    - 添加词云
+    - 添加词云  
+    - 新增黑暗模式
 - v0.3.3
     - 修复弹幕用户名打码
     - fix [#12](https://github.com/zangxx66/nonebot_plugin_blive_danmaku/issues/12)
