@@ -67,6 +67,8 @@ async def danmaku():
                 await db.add_room(room_id=room_id, uid=uid,
                                   cover=cover, title=info["title"],
                                   name=info["uname"], start_time=start_timespan, end_time=0, watch_person=0)
+        if index and not new_status:
+            await live_off(uid)
 
 
 class MsgHandler(blivedm.BaseHandler):
@@ -95,6 +97,7 @@ class MsgHandler(blivedm.BaseHandler):
         logger.debug(f"[{client.room_id}] 当前人气值：{message.popularity}")
 
     async def _on_preparing(self, client: blivedm.BLiveClient, message: blivedm.PreparingMessage):
+        logger.info(f"{client.room_owner_uid}下播了")
         index = [x for x in clients if x.uid == str(client.room_owner_uid)]
         model = index[0]
         if not model:
@@ -120,6 +123,25 @@ class MsgHandler(blivedm.BaseHandler):
             return
 
         await db.update_room("watch_person", message.num, id=room.id)
+
+
+async def live_off(uid):
+    index = [x for x in clients if x.uid == str(uid)]
+    model = index[0]
+    if not model:
+        return
+    await disconnect_room(model)
+    now = int(time.time())
+    room = await db.get_room(room_id=model.client.room_id, start_time=model.live_time)
+    if room is None:
+        return
+    await db.update_room("end_time", now, id=room.id)
+    subs = await db.get_subs(uid=uid, street_lamp=True)
+    for sub in subs:
+        msg = (f'{model.name}下播了，'
+               '可前往面板查看本次直播的路灯记录：'
+               f'{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}&uid={sub.uid}')
+        await send_msg(bot_id=sub.bot_id, send_type=sub.type, type_id=sub.type_id, message=msg)
 
 
 async def disconnect_room(model: ClientModel):
