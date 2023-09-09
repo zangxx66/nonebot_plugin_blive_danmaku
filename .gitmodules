@@ -1,0 +1,3 @@
+[submodule "nonebot_plugin_blive_danmaku/blivedm"]
+	path = nonebot_plugin_blive_danmaku/blivedm
+	url = https://github.com/zangxx66/blivedm

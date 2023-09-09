@@ -4,6 +4,7 @@ from bilireq.live import get_rooms_info_by_uids, get_room_info_by_id
 
 from ...utils import send_msg, get_timespan, get_time_difference, scheduler
 from ...blivedm import blivedm
+from ...blivedm.blivedm.models import web as web_models
 from ...database import Db as db
 from nonebot.log import logger
 from ...config import danmaku_config
@@ -52,7 +53,7 @@ async def danmaku():
             room_info = await get_room_info_by_id(room_id, reqtype="web")
             start_timespan = get_timespan(room_info["live_time"])
             model = ClientModel(room_id)
-            model.client.add_handler(handler)
+            model.client.set_handler(handler)
             model.client.start()
             model.uid = uid
             model.name = info["uname"]
@@ -72,57 +73,38 @@ async def danmaku():
 
 
 class MsgHandler(blivedm.BaseHandler):
-    async def _on_danmaku(self, client: blivedm.BLiveClient, message: blivedm.DanmakuMessage):
+    def _on_danmaku(self, client: blivedm.BLiveClient, message: web_models.DanmakuMessage):
         if (message.msg.startswith("#路灯")):
             logger.info(f'{client.room_owner_uid}的直播间收到路灯：{message.uname} -> {message.msg}')
-        await save_danmaku(client.room_id, client.room_owner_uid, message.uname, int(message.timestamp / 1000), message.msg)
+        asyncio.create_task(save_danmaku(client.room_id, client.room_owner_uid, message.uname, int(message.timestamp / 1000), message.msg))
 
-    async def _on_buy_guard(self, client: blivedm.BLiveClient, message: blivedm.GuardBuyMessage):
+    def _on_buy_guard(self, client: blivedm.BLiveClient, message: web_models.GuardBuyMessage):
         logger.debug(f"[{client.room_id}] {message.username} 购买{message.gift_name}")
 
-    async def _on_super_chat(self, client: blivedm.BLiveClient, message: blivedm.SuperChatMessage):
+    def _on_super_chat(self, client: blivedm.BLiveClient, message: web_models.SuperChatMessage):
         logger.info(f"[{client.room_id}] SC ¥{message.price} {message.uname}：{message.message}")
-        await save_gift(client.room_id,
+        asyncio.create_task(save_gift(client.room_id,
                         client.room_owner_uid,
                         message.uname, message.uid,
                         message.message,
                         message.price, 1,
-                        "sc", message.guard_level)
+                        "sc", message.guard_level))
 
-    async def _on_gift(self, client: blivedm.BLiveClient, message: blivedm.GiftMessage):
+    def _on_gift(self, client: blivedm.BLiveClient, message: web_models.GiftMessage):
         coin = message.total_coin / 1000
         logger.debug(f"[{client.room_id}] {message.uname} 赠送{message.gift_name}x{message.num} ¥{coin}")
 
-    async def _on_heartbeat(self, client: blivedm.BLiveClient, message: blivedm.HeartbeatMessage):
+    def _on_heartbeat(self, client: blivedm.BLiveClient, message: web_models.HeartbeatMessage):
         logger.debug(f"[{client.room_id}] 当前人气值：{message.popularity}")
 
-    async def _on_preparing(self, client: blivedm.BLiveClient, message: blivedm.PreparingMessage):
-        logger.info(f"{client.room_owner_uid}下播了")
-        index = [x for x in clients if x.uid == str(client.room_owner_uid)]
-        model = index[0]
-        if not model:
-            return
-        await disconnect_room(model)
-        now = int(time.time())
-        room = await db.get_room(room_id=client.room_id, start_time=model.live_time)
-        if room is None:
-            return
-        await db.update_room("end_time", now, id=room.id)
-        subs = await db.get_subs(uid=client.room_owner_uid, street_lamp=True)
-        for sub in subs:
-            msg = (f'{model.name}下播了，'
-                   '可前往面板查看本次直播的路灯记录：'
-                   f'{host}/danmaku/#/room?roomid={room.id}&type={sub.type}&type_id={sub.type_id}&uid={sub.uid}')
-            await send_msg(bot_id=sub.bot_id, send_type=sub.type, type_id=sub.type_id, message=msg)
-
-    async def _on_watched(self, client: blivedm.BLiveClient, message: blivedm.WatchedMessage):
-        room_list = await db.get_rooms(room_id=client.room_id, end_time=0)
+    def _on_watched(self, client: blivedm.BLiveClient, message: web_models.WatchedMessage):
+        room_list = asyncio.create_task(db.get_rooms(room_id=client.room_id, end_time=0)).result()
         room_list.sort(key=lambda x: x.start_time, reverse=True)
         room = room_list[0]
         if room is None:
             return
 
-        await db.update_room("watch_person", message.num, id=room.id)
+        asyncio.create_task(db.update_room("watch_person", message.num, id=room.id))
 
 
 async def live_off(uid):
