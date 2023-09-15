@@ -69,7 +69,8 @@ async def danmaku():
                                   cover=cover, title=info["title"],
                                   name=info["uname"], start_time=start_timespan, end_time=0, watch_person=0)
         if index and not new_status:
-            await live_off(uid)
+            model = index[0]
+            await live_off(model)
 
 
 class MsgHandler(blivedm.BaseHandler):
@@ -98,18 +99,19 @@ class MsgHandler(blivedm.BaseHandler):
         logger.debug(f"[{client.room_id}] 当前人气值：{message.popularity}")
 
     def _on_watched(self, client: blivedm.BLiveClient, message: web_models.WatchedMessage):
-        room_list = asyncio.create_task(db.get_rooms(room_id=client.room_id, end_time=0)).result()
-        room_list.sort(key=lambda x: x.start_time, reverse=True)
-        room = room_list[0]
-        if room is None:
-            return
-
-        asyncio.create_task(db.update_room("watch_person", message.num, id=room.id))
+        asyncio.create_task(update_watched(client.room_id, message.num))
 
 
-async def live_off(uid):
-    index = [x for x in clients if x.uid == str(uid)]
-    model = index[0]
+async def update_watched(room_id, num):
+    room_list = await db.get_rooms(room_id=room_id, end_time=0)
+    room_list.sort(key=lambda x: x.start_time, reverse=True)
+    room = room_list[0]
+    if room is None:
+        return
+    await db.update_room("watch_person", num, id=room.id)
+
+
+async def live_off(model: ClientModel):
     if not model:
         return
     await disconnect_room(model)
@@ -118,7 +120,7 @@ async def live_off(uid):
     if room is None:
         return
     await db.update_room("end_time", now, id=room.id)
-    subs = await db.get_subs(uid=uid, street_lamp=True)
+    subs = await db.get_subs(uid=room.uid, street_lamp=True)
     for sub in subs:
         msg = (f'{model.name}下播了，'
                '可前往面板查看本次直播的路灯记录：'
@@ -150,6 +152,8 @@ async def save_danmaku(room_id, uid, send_name: str, timestamp: int, raw_msg: st
     statistics_list = await db.get_subs(uid=uid, statistics=True)
     if raw_msg.startswith("#路灯"):
         blive_danmaku = raw_msg.replace("#路灯", "", 1).strip()
+        if not blive_danmaku:
+            return
         street_lamp = f'【{model.name}】 在 {datetime}({dt}) 收到了 {send_name} 发来的路灯【{blive_danmaku}】'
         danmaku_type = "street_lamp"
         subs = await db.get_subs(uid=uid, street_lamp=True)

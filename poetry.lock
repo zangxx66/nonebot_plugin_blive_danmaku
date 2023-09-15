@@ -1019,6 +1019,21 @@ files = [
 ]
 
 [[package]]
+name = "pure-protobuf"
+version = "3.0.0a5"
+description = "Protocol Buffers using Python type annotations"
+category = "main"
+optional = false
+python-versions = ">=3.8.0,<4.0.0"
+files = [
+    {file = "pure_protobuf-3.0.0a5-py3-none-any.whl", hash = "sha256:29a3e278bd2f620b8bf54ed34911c3d2160fb8a41db9873735b80effd998be46"},
+    {file = "pure_protobuf-3.0.0a5.tar.gz", hash = "sha256:b07a73de000d29708e92d4b3fd155fe34c18ee8735970a69503011447d6aa35e"},
+]
+
+[package.dependencies]
+typing-extensions = ">=4.4.0,<5.0.0"
+
+[[package]]
 name = "pyasn1"
 version = "0.5.0"
 description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
@@ -1632,4 +1647,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4.0"
-content-hash = "2654e95247236de43d40295cd92233f07a07cbd4ab0e2f1dbbdc1dff53c5c5a7"
+content-hash = "5be6fb4406f7f736f294a2675273a5ab52a91875ced2607ab3bac4b179294764"
