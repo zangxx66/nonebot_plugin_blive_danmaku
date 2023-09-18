@@ -42,6 +42,19 @@ async def uid_check(matcher: Matcher, uid: str = ArgPlainText("uid"),):
     matcher.set_arg("uid", Message(uid))
 
 
+async def handle_cookie(matcher: Matcher, command_arg: Message = CommandArg(),):
+    cookie = command_arg.extract_plain_text().strip()
+    if cookie:
+        matcher.set_arg("cookie", command_arg)
+
+
+async def cookie_check(matcher: Matcher, cookie: str = ArgPlainText("cookie"),):
+    cookie = cookie.strip()
+    if not cookie:
+        await matcher.finish("请输入cookie")
+    matcher.set_arg("cookie", Message(cookie))
+
+
 async def permission_check(bot: Bot, event: Union[GroupMessageEvent, PrivateMessageEvent]):
     """检查管理员权限"""
     from ..database import Db as db

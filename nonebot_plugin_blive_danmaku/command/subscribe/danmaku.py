@@ -1,5 +1,8 @@
 import time
 import asyncio
+import http.cookies
+import aiohttp
+from typing import Optional
 from bilireq.live import get_rooms_info_by_uids, get_room_info_by_id
 
 from ...utils import send_msg, get_timespan, get_time_difference, scheduler
@@ -12,16 +15,17 @@ from nonebot import get_driver
 
 
 class ClientModel:
-    def __init__(self, room_id):
+    def __init__(self, room_id, cookie):
         self.uid = ""
         self.name = ""
         self.live_time = 0
-        self.client = blivedm.BLiveClient(room_id)
+        self.client = blivedm.BLiveClient(room_id, session=cookie)
 
 
 clients: list[ClientModel] = []
 driver = get_driver()
 host = danmaku_config.danmaku_host if danmaku_config.danmaku_host else f"http://{driver.config.host}:{driver.config.port}"
+session: Optional[aiohttp.ClientSession] = None
 
 
 @scheduler.scheduled_job(
@@ -39,20 +43,33 @@ async def danmaku():
     except Exception as ex:
         logger.error(f"get_rooms_info_by_uids错误:\n{ex}")
         return
+
     if not res:
         return
+
     logger.debug('爬取路灯列表')
     handler = MsgHandler()
+    cookies = http.cookies.SimpleCookie()
+    cookies["SESSDATA"] = await db.get_cookie()
+    cookies["SESSDATA"]["domain"] = "bilibili.com"
+
     for uid, info in res.items():
         new_status = 0 if info["live_status"] == 2 else info["live_status"]
         index = [x for x in clients if x.uid == uid]
+
         if not index and new_status:
             logger.info(f'{info["uname"]}开播了，连接直播间')
-
             room_id = info["short_id"] if info["short_id"] else info["room_id"]
             room_info = await get_room_info_by_id(room_id, reqtype="web")
             start_timespan = get_timespan(room_info["live_time"])
-            model = ClientModel(room_id)
+
+            global session
+
+            if session is None:
+                session = aiohttp.ClientSession()
+                session.cookie_jar.update_cookies(cookies)
+
+            model = ClientModel(room_id, session)
             model.client.set_handler(handler)
             model.client.start()
             model.uid = uid
@@ -61,6 +78,7 @@ async def danmaku():
             clients.append(model)
 
             room = await db.get_room(room_id=room_id, uid=uid, start_time=start_timespan)
+
             if room is None:
                 cover = (
                     info["cover_from_user"] if info["cover_from_user"] else info["keyframe"]
@@ -68,6 +86,7 @@ async def danmaku():
                 await db.add_room(room_id=room_id, uid=uid,
                                   cover=cover, title=info["title"],
                                   name=info["uname"], start_time=start_timespan, end_time=0, watch_person=0)
+
         if index and not new_status:
             model = index[0]
             await live_off(model)

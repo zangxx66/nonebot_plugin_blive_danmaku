@@ -4,8 +4,9 @@ from tortoise import Tortoise
 from tortoise.connection import connections
 
 from ..utils import get_path
-from .model import Sub, LiveRoom, Danmaku, Gift, ignore_none
+from .model import Sub, LiveRoom, Danmaku, Gift, CookieManager, ignore_none
 from nonebot_plugin_blive_danmaku import __version__
+import time
 
 sub_dict = {"street_lamp": [], "live": []}
 
@@ -200,6 +201,26 @@ class Db:
             "watched": watched
         }
         return result
+
+    @classmethod
+    async def add_cookie(cls, value):
+        if not value:
+            return False
+        cookie = await CookieManager.get(cookie=value)
+        if not cookie:
+            datetime = int(time.time())
+            await CookieManager.add(cookie=value, create_time=datetime)
+            return True
+        return False
+
+    @classmethod
+    async def get_cookie(cls):
+        cookie_list = await CookieManager.get()
+        if len(cookie_list) == 0:
+            return ""
+        cookie_list.sort(key=lambda x: x.create_time, reverse=True)
+        cookie = cookie_list[0]
+        return cookie.cookie
 
     @classmethod
     async def migrate(cls):

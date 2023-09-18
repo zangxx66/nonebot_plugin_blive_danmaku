@@ -209,14 +209,14 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "bilireq"
-version = "0.2.10"
+version = "0.2.11"
 description = "又一个哔哩哔哩请求库"
 category = "main"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "bilireq-0.2.10-py3-none-any.whl", hash = "sha256:685da236c2c3b0416a9172f81193180b43a4bcc259e88b27a68c0cde9ccee2c0"},
-    {file = "bilireq-0.2.10.tar.gz", hash = "sha256:b5a4e825bb9b415792453d29861f0f0908b583f55a7c31ddca3c39e792ccc154"},
+    {file = "bilireq-0.2.11-py3-none-any.whl", hash = "sha256:cf361d6c23cda92ecc0d6e649970e954e0a352b8c2026fc28d36180da53b56c0"},
+    {file = "bilireq-0.2.11.tar.gz", hash = "sha256:0c315e572fa10893733ac0bdc7b62cd8cd52269cecd33e3597d6dbcce29e2a12"},
 ]
 
 [package.dependencies]
@@ -1647,4 +1647,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4.0"
-content-hash = "5be6fb4406f7f736f294a2675273a5ab52a91875ced2607ab3bac4b179294764"
+content-hash = "2f0d55166c89a60fd05537d170f92056739c83266fbbe58771c8d200366e16b9"

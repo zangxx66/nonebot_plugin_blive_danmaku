@@ -90,5 +90,10 @@ class Gift(BaseModel):
     live_duration = fields.CharField(max_length=50)
 
 
+class CookieManager(BaseModel):
+    cookie = fields.CharField(max_length=5000)
+    create_time = fields.BigIntField()
+
+
 def ignore_none(**args):
     return {key: value for key, value in args.items() if value is not None}
