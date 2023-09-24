@@ -99,7 +99,15 @@ class MsgHandler(blivedm.BaseHandler):
         asyncio.create_task(save_danmaku(client.room_id, client.room_owner_uid, message.uname, int(message.timestamp / 1000), message.msg))
 
     def _on_buy_guard(self, client: blivedm.BLiveClient, message: web_models.GuardBuyMessage):
-        logger.debug(f"[{client.room_id}] {message.username} 购买{message.gift_name}")
+        logger.info(f"[{client.room_id}] {message.username} 购买{message.gift_name}")
+        asyncio.create_task(save_gift(client.room_id,
+                                      client.room_owner_uid,
+                                      message.username,
+                                      message.uid,
+                                      message.gift_name,
+                                      message.price,
+                                      message.num,
+                                      "guard", message.guard_level))
 
     def _on_super_chat(self, client: blivedm.BLiveClient, message: web_models.SuperChatMessage):
         logger.info(f"[{client.room_id}] SC ¥{message.price} {message.uname}：{message.message}")
@@ -111,8 +119,17 @@ class MsgHandler(blivedm.BaseHandler):
                         "sc", message.guard_level))
 
     def _on_gift(self, client: blivedm.BLiveClient, message: web_models.GiftMessage):
+        if message.coin_type == "silver":
+            return
         coin = message.total_coin / 1000
-        logger.debug(f"[{client.room_id}] {message.uname} 赠送{message.gift_name}x{message.num} ¥{coin}")
+        logger.info(f"[{client.room_id}] {message.uname} 赠送{message.gift_name}x{message.num} ¥{coin}")
+        asyncio.create_task(save_gift(client.room_id,
+                                      client.room_owner_uid,
+                                      message.uname,
+                                      message.uid,
+                                      message.gift_name,
+                                      coin,message.num,
+                                      'gift',message.guard_level))
 
     def _on_heartbeat(self, client: blivedm.BLiveClient, message: web_models.HeartbeatMessage):
         logger.debug(f"[{client.room_id}] 当前人气值：{message.popularity}")
@@ -193,7 +210,7 @@ async def save_danmaku(room_id, uid, send_name: str, timestamp: int, raw_msg: st
                              type=danmaku_type)
 
 
-async def save_gift(room_id, uid, send_name: str, send_uid: int, name: str, price: int, num: int, type: str, guard_level: int):
+async def save_gift(room_id, uid, send_name: str, send_uid: int, name: str, price: int | float, num: int, type: str, guard_level: int):
     datetime = int(time.time())
     index = [x for x in clients if x.uid == str(uid)]
     if not index:
