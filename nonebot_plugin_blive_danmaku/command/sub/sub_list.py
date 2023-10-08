@@ -4,6 +4,7 @@ from nonebot import on_command
 from nonebot.log import logger
 from ...utils import get_type_id, permission_check
 from bilireq.user import get_user_info
+from bilireq.grpc.dynamic import grpc_get_user_dynamics
 from ...database import Db as db
 from ...config import danmaku_config
 
@@ -20,8 +21,8 @@ async def _(event: MessageEvent, bot: Bot):
     subs = await db.get_subs(type=event.message_type, type_id=type_id)
     msg = "订阅列表：\n\n"
     for sub in subs:
-        user = await get_user_info(sub.uid, reqtype="web", proxies=None)
-        name = user["name"]
+        dy = (await grpc_get_user_dynamics(sub.uid)).list
+        name = dy[0].modules[0].module_author.author.name
         msg += (
             f"{name}({sub.uid}) "
             f"路灯：{'开' if sub.street_lamp else '关'} "
