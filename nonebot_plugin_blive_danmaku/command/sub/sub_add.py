@@ -3,8 +3,8 @@ from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.params import ArgPlainText
 from nonebot import on_command
 from ...utils import get_type_id, handle_uid, permission_check, uid_check
-from bilireq.user import get_user_info
-from bilireq.exceptions import ResponseCodeError
+from bilireq.grpc.dynamic import grpc_get_user_dynamics
+from bilireq.exceptions import GrpcError
 
 sub_add = on_command("添加订阅", priority=5)
 sub_add.__doc__ = """添加订阅 UID"""
@@ -17,17 +17,12 @@ sub_add.got("uid", prompt="请输入一个UID")(uid_check)
 async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     """添加订阅"""
     try:
-        user = await get_user_info(uid, reqtype="web", proxies=None)
-    except ResponseCodeError as ex:
-        if ex.code == -400 or ex.code == -404:
-            await sub_add.finish(f"UID {uid}不存在，请检查后重试")
-        elif ex.code == -412:
-            await sub_add.finish("操作过于频繁，请半小时后再试")
-        else:
-            await sub_add.finish(f"发生未知错误：{str(ex)}，请联系开发者")
+        dy = (await grpc_get_user_dynamics(int(uid))).list
+        name = dy[0].modules[0].module_author.author.name
+    except GrpcError as ex:
+            await sub_add.finish(f"发生未知错误：{ex.code} -> {ex.msg}，请联系开发者")
     type_id = await get_type_id(event)
     sub = await db.get_sub(uid=uid, type=event.message_type, type_id=type_id, bot_id=event.self_id)
-    name = user["name"]
     if sub is not None:
         await sub_add.finish(f"{name}({uid}) 已经订阅")
 

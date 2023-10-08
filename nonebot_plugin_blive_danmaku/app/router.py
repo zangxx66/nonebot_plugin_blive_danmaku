@@ -113,11 +113,18 @@ async def get_gift(rid: int = Query(...),
     """
     获取礼物列表
     """
-    total = await db.get_gift_count(room_id=rid)
 
     skip = (page - 1) * size
     rows = await db.get_gift_by_paged(room_id=rid, page=skip, size=size, keyword=keyword, type=type)
-    return models.ResponseItem(code=0, data={"rows": rows, "total": total}, msg=None)
+    return models.ResponseItem(code=0, data={"rows": rows}, msg=None)
+
+
+@router.get("/get_gift_count", response_model=models.ResponseItem)
+async def get_gift_count(rid: int = Query(...),
+                         keyword: str = Query(None),
+                         type: str = Query(None)):
+    total = await db.get_gift_count(room_id=rid, keyword=keyword,type=type)
+    return models.ResponseItem(code=0, data={"total": total}, msg=None)
 
 
 @router.get("/get_statistics", response_model=models.ResponseItem)

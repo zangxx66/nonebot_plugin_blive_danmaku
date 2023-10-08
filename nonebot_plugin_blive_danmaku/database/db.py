@@ -159,8 +159,13 @@ class Db:
         return res
 
     @classmethod
-    async def get_gift_count(cls, room_id):
-        res = await Gift.get(rid=room_id).count()
+    async def get_gift_count(cls, room_id, keyword, type):
+        kwargs = {
+            "rid": room_id,
+            "keyword__contains": keyword,
+            "type": type
+        }
+        res = await Gift.get(**ignore_none(**kwargs)).count()
         return res
 
     @classmethod
